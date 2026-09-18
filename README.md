@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Momentum Physics Academy
 
-## Getting Started
+Next.js (App Router) + TypeScript + Tailwind CSS v4 web application for **Momentum Physics Academy** — student registration with a Google Sheets backend via Google Apps Script and automated onboarding emails.
 
-First, run the development server:
+Migrated from the original Vite + React app; components, styling and behaviour are unchanged.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env   # then set NEXT_PUBLIC_GOOGLE_SCRIPT_URL
+npm run dev            # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Other scripts: `npm run build`, `npm run start`, `npm run lint`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project layout
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+  app/            Next.js entry: layout (fonts, metadata), page, globals.css
+  App.tsx         Single-page application shell (client component)
+  components/     UI sections, forms, canvas simulations
+  hooks/          useEnrollmentForm
+  services/       googleSheets.ts — POSTs enrollments to the Apps Script web app
+  config/ types/ utils/
+Code.gs           Google Apps Script backend (paste into Sheets → Extensions → Apps Script)
+```
 
-## Learn More
+## Google Sheets integration
 
-To learn more about Next.js, take a look at the following resources:
+Until `NEXT_PUBLIC_GOOGLE_SCRIPT_URL` is set to a deployed Apps Script web-app URL, the enrollment form runs in *Preview Demo Mode* (payload is logged to the console and the success screen is shown).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [README_GOOGLE_SHEETS_SETUP.md](./README_GOOGLE_SHEETS_SETUP.md) for the full setup: creating the sheet, deploying `Code.gs`, and the `onEdit` trigger that emails students when their status is set to **Paid**.
