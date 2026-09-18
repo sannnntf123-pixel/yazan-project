@@ -214,7 +214,7 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
                 type="tel"
                 value={formData.studentPhone}
                 onChange={handleChange}
-                placeholder="+961 76 688 522"
+                placeholder="+966 59 762 1520"
                 disabled={isSubmitting}
                 error={errors.studentPhone}
               />
@@ -233,7 +233,7 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
                 type="tel"
                 value={formData.parentPhone}
                 onChange={handleChange}
-                placeholder="+961 76 688 522"
+                placeholder="+966 59 762 1520"
                 disabled={isSubmitting}
                 error={errors.parentPhone}
               />

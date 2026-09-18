@@ -30,7 +30,7 @@ interface RegistrationSuccessProps {
 const FALLBACK_ENROLLMENT: EnrollmentPayload = {
   studentName: 'Valued Student',
   studentEmail: 'student@example.com',
-  studentPhone: '+961 76 688 522',
+  studentPhone: '+966 59 762 1520',
   country: 'Saudi Arabia',
   course: 'AP Physics 1',
   studyMode: 'Group',

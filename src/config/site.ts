@@ -2,8 +2,8 @@
 export const SITE_NAME = 'Momentum Physics Academy';
 export const SITE_SHORT_NAME = 'Momentum Physics';
 
-/** Admissions WhatsApp number in international format without "+": +961 76 688 522 */
-export const ACADEMY_WHATSAPP = '96176688522';
+/** Admissions WhatsApp number in international format without "+": +966 59 762 1520 */
+export const ACADEMY_WHATSAPP = '966597621520';
 
 export const INSTAGRAM_URL = 'https://www.instagram.com/momentum.physics';
 
