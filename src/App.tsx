@@ -61,9 +61,11 @@ export default function App() {
     <div className="relative min-h-screen bg-brand-black text-white font-sans antialiased">
       <ParticleBackground />
 
-      {/* Ambient background glows */}
-      <div className="absolute top-[-250px] left-[-250px] w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(30,144,255,0.14)_0%,rgba(30,144,255,0)_65%)] pointer-events-none select-none z-0" />
-      <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(66,183,255,0.14)_0%,rgba(66,183,255,0)_65%)] pointer-events-none select-none z-0" />
+      {/* Ambient background glows, clipped so they never extend the page */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0" aria-hidden="true">
+        <div className="absolute top-[-250px] left-[-250px] w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(30,144,255,0.14)_0%,rgba(30,144,255,0)_65%)]" />
+        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(66,183,255,0.14)_0%,rgba(66,183,255,0)_65%)]" />
+      </div>
 
       <Header onHomeClick={showMain} onDomainGuideClick={openDomainGuide} />
 
