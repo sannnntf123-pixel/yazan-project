@@ -19,6 +19,29 @@ const initialFormData: EnrollmentFormData = {
   notes: ''
 };
 
+/**
+ * Scroll the first invalid field into view and focus it. Inputs/selects are
+ * found by name; button-group fields (studyMode, paymentMethod) by data-field.
+ */
+function scrollToFirstError(validationErrors: EnrollmentFormErrors) {
+  const form = document.querySelector<HTMLFormElement>('#enrollment-form-container form');
+  if (!form) return;
+
+  const targets = Object.keys(validationErrors)
+    .map((key) => form.querySelector<HTMLElement>(`[name="${key}"], [data-field="${key}"]`))
+    .filter((el): el is HTMLElement => el !== null)
+    // DOM order, so we land on the topmost invalid field
+    .sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+
+  const first = targets[0];
+  if (!first) return;
+
+  first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (first instanceof HTMLInputElement || first instanceof HTMLSelectElement || first instanceof HTMLTextAreaElement) {
+    first.focus({ preventScroll: true });
+  }
+}
+
 export function useEnrollmentForm(onSuccessCallback?: (payload: EnrollmentPayload) => void) {
   const [formData, setFormData] = useState<EnrollmentFormData>(initialFormData);
   const [errors, setErrors] = useState<EnrollmentFormErrors>({});
@@ -70,6 +93,8 @@ export function useEnrollmentForm(onSuccessCallback?: (payload: EnrollmentPayloa
         type: 'error',
         text: 'Please correct the highlighted fields before submitting.'
       });
+      // Defer past React's commit of the error styles before scrolling
+      setTimeout(() => scrollToFirstError(validationErrors), 0);
       return;
     }
 

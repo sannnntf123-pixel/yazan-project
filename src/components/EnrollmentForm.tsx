@@ -362,7 +362,7 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
               </div>
 
               {/* Study Mode Radio Buttons */}
-              <div className="space-y-2 sm:col-span-2">
+              <div className="space-y-2 sm:col-span-2" data-field="studyMode">
                 <label className="text-xs text-brand-silver font-medium block">
                   Study Format / Mode *
                 </label>
@@ -405,7 +405,7 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
           </div>
 
           {/* SECTION 3: Payment Method Selection */}
-          <div className="space-y-4 pt-2 border-t border-white/5">
+          <div className="space-y-4 pt-2 border-t border-white/5" data-field="paymentMethod">
             <h5 className="text-xs font-mono uppercase tracking-wider text-cyan-accent font-semibold flex items-center gap-1.5">
               <CreditCard className="w-3.5 h-3.5" />
               3. Payment Method
