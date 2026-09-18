@@ -44,9 +44,36 @@ export default function ParticleBackground() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
+    let animationFrameId = 0;
     let width = 0;
     let height = 0;
+    let running = false;
+
+    // The blueprint grid never changes, so rasterize it once per resize and
+    // blit it each frame instead of stroking ~40 paths per frame.
+    const gridCanvas = document.createElement('canvas');
+    const gridCtx = gridCanvas.getContext('2d');
+
+    const drawGrid = (w: number, h: number) => {
+      if (!gridCtx) return;
+      gridCanvas.width = w;
+      gridCanvas.height = h;
+      gridCtx.strokeStyle = 'rgba(30, 144, 255, 0.02)';
+      gridCtx.lineWidth = 1;
+      const gridSize = 80;
+      gridCtx.beginPath();
+      for (let x = 0; x < w; x += gridSize) {
+        gridCtx.moveTo(x, 0);
+        gridCtx.lineTo(x, h);
+      }
+      for (let y = 0; y < h; y += gridSize) {
+        gridCtx.moveTo(0, y);
+        gridCtx.lineTo(w, y);
+      }
+      gridCtx.stroke();
+    };
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     // Formulas drifting in background
     const formulasList = [
@@ -119,7 +146,9 @@ export default function ParticleBackground() {
         height = entryHeight;
         canvas.width = entryWidth;
         canvas.height = entryHeight;
+        drawGrid(entryWidth, entryHeight);
         initElements(entryWidth, entryHeight);
+        if (!running) render();
       }
     });
 
@@ -137,29 +166,15 @@ export default function ParticleBackground() {
       mouseRef.current.active = false;
     };
 
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.addEventListener('mouseleave', handleMouseLeave);
 
     // Animation Loop
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Draw elegant subtle grid lines (Technical blueprint effect)
-      ctx.strokeStyle = 'rgba(30, 144, 255, 0.02)';
-      ctx.lineWidth = 1;
-      const gridSize = 80;
-      for (let x = 0; x < width; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < height; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
+      // 1. Blit the pre-rendered blueprint grid
+      if (gridCanvas.width) ctx.drawImage(gridCanvas, 0, 0);
 
       // 2. Render and animate orbits
       orbits.forEach((orbit) => {
@@ -211,16 +226,17 @@ export default function ParticleBackground() {
 
       // 4. Draw links between near particles (Molecular or stellar network)
       const maxDistance = 110;
+      const maxDistanceSq = maxDistance * maxDistance;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const p1 = particles[i];
           const p2 = particles[j];
           const dx = p1.x - p2.x;
           const dy = p1.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+          const distSq = dx * dx + dy * dy;
 
-          if (dist < maxDistance) {
-            const alpha = (1 - dist / maxDistance) * 0.12;
+          if (distSq < maxDistanceSq) {
+            const alpha = (1 - Math.sqrt(distSq) / maxDistance) * 0.12;
             ctx.strokeStyle = `rgba(30, 144, 255, ${alpha})`;
             ctx.lineWidth = 0.8;
             ctx.beginPath();
@@ -274,21 +290,43 @@ export default function ParticleBackground() {
         ctx.fill();
       }
 
+      // Reduced motion: render a single static frame and stop.
+      if (reducedMotion.matches || document.hidden) {
+        running = false;
+        return;
+      }
       animationFrameId = requestAnimationFrame(render);
     };
 
-    render();
+    const start = () => {
+      if (running) return;
+      running = true;
+      animationFrameId = requestAnimationFrame(render);
+    };
+    const stop = () => {
+      cancelAnimationFrame(animationFrameId);
+      running = false;
+    };
+
+    // Don't burn CPU/GPU drawing a background nobody can see.
+    const handleVisibility = () => (document.hidden ? stop() : start());
+    document.addEventListener('visibilitychange', handleVisibility);
+    reducedMotion.addEventListener('change', handleVisibility);
+
+    start();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      stop();
       resizeObserver.disconnect();
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      reducedMotion.removeEventListener('change', handleVisibility);
     };
   }, []);
 
   return (
-    <div id="particle-container" ref={containerRef} className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
+    <div id="particle-container" ref={containerRef} className="fixed inset-0 overflow-hidden pointer-events-none select-none z-0">
       <canvas ref={canvasRef} className="w-full h-full block opacity-70" />
     </div>
   );

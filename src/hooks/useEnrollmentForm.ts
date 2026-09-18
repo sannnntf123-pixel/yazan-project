@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { EnrollmentFormData, EnrollmentFormErrors, EnrollmentPayload } from '../types/enrollment';
 import { validateEnrollmentForm } from '../utils/validation';
-import { submitEnrollmentToSheets } from '../services/googleSheets';
+import { submitEnrollmentViaWhatsApp } from '../services/whatsapp';
 
 const initialFormData: EnrollmentFormData = {
   studentName: '',
@@ -74,11 +74,10 @@ export function useEnrollmentForm(onSuccessCallback?: (payload: EnrollmentPayloa
     }
 
     setIsSubmitting(true);
-    setSubmissionProgress(25);
+    setSubmissionProgress(50);
 
     try {
-      setSubmissionProgress(50);
-      const result = await submitEnrollmentToSheets(formData);
+      const result = submitEnrollmentViaWhatsApp(formData);
       setSubmissionProgress(90);
 
       if (result.success && result.data) {

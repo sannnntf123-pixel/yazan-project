@@ -1,5 +1,8 @@
 import { BankDetails } from '../types/enrollment';
 
+/** Academy admissions WhatsApp number in international format (no "+"): +961 76 688 522 */
+export const ACADEMY_WHATSAPP = '96176688522';
+
 export const BANK_DETAILS: BankDetails = {
   bankName: 'Al Rajhi Bank',
   accountName: 'Momentum Physics Academy',
@@ -7,7 +10,7 @@ export const BANK_DETAILS: BankDetails = {
   swiftCode: 'RJHISARI',
   currency: 'SAR',
   stcPayNumber: '+966 59 762 1520',
-  whatsappContact: '966597621520'
+  whatsappContact: ACADEMY_WHATSAPP
 };
 
 export const AVAILABLE_COURSES = [

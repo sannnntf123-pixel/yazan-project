@@ -133,7 +133,8 @@ export default function PhysicsSandbox() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
+    let animationFrameId = 0;
+    let visible = true;
 
     const updatePhysicsAndRender = () => {
       const state = physicsRef.current;
@@ -296,20 +297,48 @@ export default function PhysicsSandbox() {
       ctx.textBaseline = 'middle';
       ctx.fillText(`${p2.label}`, p2.x, p2.y + 1);
 
+      // Nothing moves while paused, so a single frame is enough. Also stop
+      // when the sandbox is scrolled out of view or the tab is hidden.
+      if (!isPlaying || !visible || document.hidden) {
+        animationFrameId = 0;
+        return;
+      }
       animationFrameId = requestAnimationFrame(updatePhysicsAndRender);
     };
 
-    updatePhysicsAndRender();
+    const start = () => {
+      if (animationFrameId) return;
+      animationFrameId = requestAnimationFrame(updatePhysicsAndRender);
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible) start();
+      },
+      { rootMargin: '100px' }
+    );
+    observer.observe(canvas);
+
+    const handleVisibility = () => {
+      if (!document.hidden) start();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    start();
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      animationFrameId = 0;
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [isPlaying]);
 
   return (
     <div ref={containerRef} className="glass-panel rounded-2xl p-6 border border-white/10 flex flex-col h-full justify-between shadow-2xl relative overflow-hidden">
       {/* Absolute faint background glow */}
-      <div className="absolute -right-24 -top-24 w-48 h-48 bg-electric-blue/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -right-32 -top-32 w-64 h-64 rounded-full bg-[radial-gradient(circle,rgba(30,144,255,0.12)_0%,rgba(30,144,255,0)_70%)] pointer-events-none" />
       
       {/* Title block */}
       <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3">

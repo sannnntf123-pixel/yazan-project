@@ -17,7 +17,6 @@
   --color-brand-silver: #A3B3C2;
 }
 html {
-  scroll-behavior: smooth;
   background-color: var(--color-brand-black);
   color: #ffffff;
 }
@@ -54,15 +53,17 @@ html {
 }
 
 /* Custom styles for interactive elements */
+/* No backdrop-filter here: two dozen blurred panels sitting over an animated
+   canvas would have to re-blur on every frame. The translucent fill + border
+   gives the glass look on its own. */
 .glass-panel {
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .glass-panel-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-panel-hover:hover {

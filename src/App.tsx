@@ -23,7 +23,9 @@ import {
   Globe
 } from 'lucide-react';
 
+import Image from 'next/image';
 import { Course } from './types';
+import { ACADEMY_WHATSAPP } from './config/bankDetails';
 import ParticleBackground from './components/ParticleBackground';
 import physicsLogo from './assets/images/physics_logo_1784026386356.jpg';
 import PhysicsSandbox from './components/PhysicsSandbox';
@@ -55,6 +57,24 @@ export default function App() {
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Smooth-scroll in-page anchor links (#about, #courses, ...) without a global
+  // `scroll-behavior: smooth`, which makes wheel/trackpad scrolling feel rubbery.
+  useEffect(() => {
+    const handleAnchorClick = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement | null)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null;
+      if (!anchor) return;
+      const id = anchor.getAttribute('href')?.slice(1);
+      const target = id ? document.getElementById(id) : null;
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth' });
+      window.history.replaceState(null, '', `#${id}`);
+    };
+
+    document.addEventListener('click', handleAnchorClick);
+    return () => document.removeEventListener('click', handleAnchorClick);
   }, []);
 
   // Core Courses Requested by User
@@ -271,8 +291,8 @@ export default function App() {
       <ParticleBackground />
 
       {/* Background Glow Effects from Clean Minimalism Theme */}
-      <div className="absolute top-[-100px] left-[-100px] w-[400px] h-[400px] bg-electric-blue/10 rounded-full blur-[120px] pointer-events-none select-none z-0"></div>
-      <div className="absolute bottom-[-50px] right-[-50px] w-[300px] h-[300px] bg-cyan-accent/10 rounded-full blur-[100px] pointer-events-none select-none z-0"></div>
+      <div className="absolute top-[-250px] left-[-250px] w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(30,144,255,0.14)_0%,rgba(30,144,255,0)_65%)] pointer-events-none select-none z-0"></div>
+      <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(66,183,255,0.14)_0%,rgba(66,183,255,0)_65%)] pointer-events-none select-none z-0"></div>
 
       {/* 1. Header & Navigation (Sticky glassmorphism nav) */}
       <header id="app-header" className="sticky top-0 z-40 w-full bg-brand-black/75 backdrop-blur-md border-b border-white/5 transition-all">
@@ -284,11 +304,14 @@ export default function App() {
             id="brand-logo-nav"
             className="flex items-center gap-2 group cursor-pointer text-left"
           >
-            <img 
-              src={physicsLogo.src} 
-              alt="Momentum Physics" 
+            <Image
+              src={physicsLogo}
+              alt="Momentum Physics"
+              width={48}
+              height={48}
+              sizes="48px"
+              priority
               className="h-10 sm:h-12 w-auto object-contain rounded-lg transition-transform group-hover:scale-105 duration-300"
-              referrerPolicy="no-referrer"
             />
           </button>
 
@@ -733,11 +756,14 @@ export default function App() {
             {/* Logo and tag */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <img 
-                  src={physicsLogo.src} 
-                  alt="Momentum Physics" 
+                <Image
+                  src={physicsLogo}
+                  alt="Momentum Physics"
+                  width={40}
+                  height={40}
+                  sizes="40px"
+                  loading="lazy"
                   className="h-10 w-auto object-contain rounded-lg"
-                  referrerPolicy="no-referrer"
                 />
               </div>
               <p className="text-xs text-brand-silver max-w-xs leading-relaxed">
@@ -765,7 +791,7 @@ export default function App() {
             </p>
             <div className="flex items-center gap-4">
               <a
-                href="https://wa.me/966597621520"
+                href={`https://wa.me/${ACADEMY_WHATSAPP}`}
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-cyan-accent transition-colors flex items-center gap-1"

@@ -95,7 +95,7 @@ export default function RegistrationSuccess({ enrollmentData, onReturnHome }: Re
           </h1>
 
           <p className="text-sm sm:text-base text-brand-silver max-w-2xl mx-auto leading-relaxed">
-            Thank you, <strong className="text-white">{data.studentName}</strong>! Your application for <strong className="text-cyan-accent">{data.course}</strong> has been logged in our Google Sheets enrollment ledger.
+            Thank you, <strong className="text-white">{data.studentName}</strong>! Your application for <strong className="text-cyan-accent">{data.course}</strong> has been sent to our admissions team on WhatsApp.
           </p>
         </div>
 
@@ -289,7 +289,7 @@ export default function RegistrationSuccess({ enrollmentData, onReturnHome }: Re
             What You Receive After Payment Confirmation
           </h3>
           <p className="text-xs sm:text-sm text-brand-silver leading-relaxed">
-            Once our finance admin changes your status from <strong className="text-amber-300">Pending Payment</strong> to <strong className="text-emerald-400">Paid</strong> in Google Sheets, Google Apps Script automatically emails you the following access kit:
+            Once our finance admin confirms your payment and changes your status from <strong className="text-amber-300">Pending Payment</strong> to <strong className="text-emerald-400">Paid</strong>, we email you the following access kit:
           </p>
         </div>
 
@@ -351,7 +351,7 @@ export default function RegistrationSuccess({ enrollmentData, onReturnHome }: Re
             <span className="text-cyan-accent font-mono text-sm hidden sm:inline">➔</span>
             <div className="flex items-center gap-2 bg-navy-dark px-3 py-1.5 rounded-lg border border-white/10 w-full sm:w-auto">
               <Building2 className="w-3.5 h-3.5 text-amber-400" />
-              <span>Google Sheet (Pending)</span>
+              <span>Admissions (Pending)</span>
             </div>
             <span className="text-cyan-accent font-mono text-sm hidden sm:inline">➔</span>
             <div className="flex items-center gap-2 bg-navy-dark px-3 py-1.5 rounded-lg border border-white/10 w-full sm:w-auto">

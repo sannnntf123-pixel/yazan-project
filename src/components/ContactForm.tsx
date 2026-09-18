@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Send, MessageCircle, Instagram, CheckCircle2, Phone, AlertCircle, ArrowRight } from 'lucide-react';
+import { ACADEMY_WHATSAPP } from '../config/bankDetails';
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -16,7 +17,6 @@ export default function ContactForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
 
-  const academyWhatsApp = '966597621520'; // Clean country code format
   const academyInstagram = 'momentum.physics';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -44,7 +44,7 @@ export default function ContactForm() {
     
     // Encode message for WhatsApp link
     const encodedText = encodeURIComponent(getPrefilledText());
-    const whatsappUrl = `https://wa.me/${academyWhatsApp}?text=${encodedText}`;
+    const whatsappUrl = `https://wa.me/${ACADEMY_WHATSAPP}?text=${encodedText}`;
     window.open(whatsappUrl, '_blank');
     setIsSubmitted(true);
   };
@@ -61,7 +61,7 @@ export default function ContactForm() {
 
   const triggerDirectWhatsAppOnly = () => {
     const text = encodeURIComponent("Hello Momentum Physics! I am ready to master Physics and would love to learn more about your AP and Tahsili courses. Please send me info on upcoming cohorts!");
-    window.open(`https://wa.me/${academyWhatsApp}?text=${text}`, '_blank');
+    window.open(`https://wa.me/${ACADEMY_WHATSAPP}?text=${text}`, '_blank');
   };
 
   const triggerDirectInstagram = () => {

@@ -21,7 +21,7 @@ import {
   Users
 } from 'lucide-react';
 import { useEnrollmentForm } from '../hooks/useEnrollmentForm';
-import { AVAILABLE_COURSES, COUNTRIES_LIST, PAYMENT_METHODS, PREFERRED_BATCHES, STUDY_MODES } from '../config/bankDetails';
+import { ACADEMY_WHATSAPP, AVAILABLE_COURSES, COUNTRIES_LIST, PAYMENT_METHODS, PREFERRED_BATCHES, STUDY_MODES } from '../config/bankDetails';
 import { EnrollmentPayload, PaymentMethod } from '../types/enrollment';
 
 interface EnrollmentFormProps {
@@ -50,13 +50,11 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
     }
   }, [preselectedCourse, setFormData]);
 
-  const academyWhatsApp = '966597621520';
-
   const handleDirectWhatsApp = () => {
     const text = encodeURIComponent(
       `Hello Momentum Physics! I am interested in enrolling in the ${formData.course || 'Physics'} program (${formData.studyMode} mode). Please send me enrollment details!`
     );
-    window.open(`https://wa.me/${academyWhatsApp}?text=${text}`, '_blank');
+    window.open(`https://wa.me/${ACADEMY_WHATSAPP}?text=${text}`, '_blank');
   };
 
   return (
@@ -76,7 +74,7 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
           </h3>
 
           <p className="text-xs sm:text-sm text-brand-silver leading-relaxed">
-            Fill out the official enrollment application below. Once submitted, our academic admissions officer will review your course selection and provide immediate portal onboarding.
+            Fill out the official enrollment application below. Submitting opens WhatsApp with your details pre-filled — send the message and our admissions officer will confirm your spot and provide portal onboarding.
           </p>
         </div>
 
@@ -90,7 +88,7 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
           <ul className="space-y-2.5 text-xs text-brand-silver">
             <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-cyan-accent/10 text-cyan-accent flex items-center justify-center font-mono font-bold text-[10px] shrink-0 mt-0.5">1</span>
-              <span>Your registration details are securely logged with status <strong className="text-amber-400">Pending Payment</strong>.</span>
+              <span>Your registration details are sent to our admissions team on WhatsApp with status <strong className="text-amber-400">Pending Payment</strong>.</span>
             </li>
             <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-cyan-accent/10 text-cyan-accent flex items-center justify-center font-mono font-bold text-[10px] shrink-0 mt-0.5">2</span>
@@ -98,7 +96,7 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
             </li>
             <li className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-cyan-accent/10 text-cyan-accent flex items-center justify-center font-mono font-bold text-[10px] shrink-0 mt-0.5">3</span>
-              <span>Upon verification, Google Apps Script automatically issues your <strong>Microsoft Teams invitation link</strong>, course calendar, formula handbook, and recording platform credentials.</span>
+              <span>Upon verification, we send you your <strong>Microsoft Teams invitation link</strong>, course calendar, formula handbook, and recording platform credentials.</span>
             </li>
           </ul>
         </div>
@@ -489,11 +487,11 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Submitting Application to Google Sheets...</span>
+                  <span>Opening WhatsApp...</span>
                 </>
               ) : (
                 <>
-                  <span>Complete Student Registration</span>
+                  <span>Register via WhatsApp</span>
                   <Send className="w-4 h-4" />
                 </>
               )}
