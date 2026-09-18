@@ -84,7 +84,7 @@ export function validateEnrollmentForm(data: EnrollmentFormData): { isValid: boo
 
   // Optional Parent Phone validation if provided
   if (data.parentPhone && data.parentPhone.trim() && !isValidPhone(data.parentPhone)) {
-    errors.studentPhone = 'Parent phone number format is invalid.';
+    errors.parentPhone = 'Parent phone number format is invalid.';
   }
 
   return {

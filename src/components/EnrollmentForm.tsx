@@ -265,17 +265,20 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
 
               {/* Parent Phone (Optional) */}
               <div className="space-y-1.5">
-                <label className="text-xs text-brand-silver font-medium">
-                  Parent / Guardian Phone <span className="text-brand-silver/40 text-[10px]">(Optional)</span>
+                <label className="text-xs text-brand-silver font-medium flex justify-between">
+                  <span>Parent / Guardian Phone <span className="text-brand-silver/40 text-[10px]">(Optional)</span></span>
+                  {errors.parentPhone && <span className="text-red-400 text-[10px]">{errors.parentPhone}</span>}
                 </label>
                 <input
                   type="tel"
                   name="parentPhone"
                   value={formData.parentPhone}
                   onChange={handleChange}
-                  placeholder="+966 50 987 6543"
+                  placeholder="+961 76 688 522"
                   disabled={isSubmitting}
-                  className="w-full bg-brand-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder-brand-silver/40 focus:border-cyan-accent focus:outline-none transition-all"
+                  className={`w-full bg-brand-black/60 border rounded-xl px-3 py-2.5 text-xs text-white placeholder-brand-silver/40 focus:outline-none transition-all ${
+                    errors.parentPhone ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-cyan-accent'
+                  }`}
                 />
               </div>
 

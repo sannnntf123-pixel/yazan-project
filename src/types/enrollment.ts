@@ -27,6 +27,7 @@ export interface EnrollmentFormErrors {
   studentName?: string;
   studentEmail?: string;
   studentPhone?: string;
+  parentPhone?: string;
   country?: string;
   course?: string;
   studyMode?: string;
