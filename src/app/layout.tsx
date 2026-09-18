@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { SITE_NAME } from "@/config/site";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -20,10 +21,17 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+const description =
+  "Premium physics tutoring academy for AP, IGCSE, A Level, and Tahsili physics exams.";
+
 export const metadata: Metadata = {
-  title: "Momentum Physics Academy",
-  description:
-    "Premium physics tutoring academy for AP, IGCSE, A Level, and Tahsili physics exams.",
+  title: SITE_NAME,
+  description,
+  openGraph: {
+    title: SITE_NAME,
+    description,
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

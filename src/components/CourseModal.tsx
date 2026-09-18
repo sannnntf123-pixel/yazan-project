@@ -2,7 +2,16 @@
 
 import { useState } from 'react';
 import { X, Check, Award, Clock, BookOpen, Layers, ArrowRight } from 'lucide-react';
-import { Course } from '../types';
+import Modal from '@/components/ui/Modal';
+import type { Course } from '@/types';
+
+type CourseTab = 'syllabus' | 'format' | 'features';
+
+const COURSE_TABS: { id: CourseTab; label: string }[] = [
+  { id: 'syllabus', label: 'Syllabus & Topics' },
+  { id: 'format', label: 'Course Structure & Duration' },
+  { id: 'features', label: "What's Included" },
+];
 
 interface CourseModalProps {
   course: Course | null;
@@ -11,13 +20,17 @@ interface CourseModalProps {
 }
 
 export default function CourseModal({ course, onClose, onEnroll }: CourseModalProps) {
-  const [activeTab, setActiveTab] = useState<'syllabus' | 'format' | 'features'>('syllabus');
+  const [activeTab, setActiveTab] = useState<CourseTab>('syllabus');
 
   if (!course) return null;
 
   return (
-    <div id="course-details-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-black/80 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-2xl glass-panel rounded-2xl border border-white/10 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+    <Modal
+      open
+      onClose={onClose}
+      labelledBy="course-modal-title"
+      className="relative w-full max-w-2xl glass-panel rounded-2xl border border-white/10 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+    >
         {/* Header Ambient Glow */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-electric-blue via-cyan-accent to-electric-blue" />
         
@@ -28,7 +41,7 @@ export default function CourseModal({ course, onClose, onEnroll }: CourseModalPr
               <Award className="w-3.5 h-3.5" />
               {course.difficulty}
             </div>
-            <h3 className="font-display font-bold text-2xl text-white flex items-center gap-2">
+            <h3 id="course-modal-title" className="font-display font-bold text-2xl text-white flex items-center gap-2">
               {course.title}
             </h3>
             <p className="text-sm text-brand-silver mt-1">{course.subtitle}</p>
@@ -43,37 +56,22 @@ export default function CourseModal({ course, onClose, onEnroll }: CourseModalPr
         </div>
 
         {/* Tab Selection */}
-        <div className="flex border-b border-white/5 bg-navy-dark/30 px-6">
-          <button
-            onClick={() => setActiveTab('syllabus')}
-            className={`py-3 px-4 text-xs font-display font-medium tracking-wide border-b-2 transition-all cursor-pointer ${
-              activeTab === 'syllabus'
-                ? 'border-cyan-accent text-cyan-accent font-bold'
-                : 'border-transparent text-brand-silver hover:text-white'
-            }`}
-          >
-            Syllabus & Topics
-          </button>
-          <button
-            onClick={() => setActiveTab('format')}
-            className={`py-3 px-4 text-xs font-display font-medium tracking-wide border-b-2 transition-all cursor-pointer ${
-              activeTab === 'format'
-                ? 'border-cyan-accent text-cyan-accent font-bold'
-                : 'border-transparent text-brand-silver hover:text-white'
-            }`}
-          >
-            Course Structure & Duration
-          </button>
-          <button
-            onClick={() => setActiveTab('features')}
-            className={`py-3 px-4 text-xs font-display font-medium tracking-wide border-b-2 transition-all cursor-pointer ${
-              activeTab === 'features'
-                ? 'border-cyan-accent text-cyan-accent font-bold'
-                : 'border-transparent text-brand-silver hover:text-white'
-            }`}
-          >
-            What's Included
-          </button>
+        <div role="tablist" className="flex border-b border-white/5 bg-navy-dark/30 px-6">
+          {COURSE_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`py-3 px-4 text-xs font-display font-medium tracking-wide border-b-2 transition-all cursor-pointer ${
+                activeTab === tab.id
+                  ? 'border-cyan-accent text-cyan-accent font-bold'
+                  : 'border-transparent text-brand-silver hover:text-white'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Content Body (Scrollable) */}
@@ -184,7 +182,6 @@ export default function CourseModal({ course, onClose, onEnroll }: CourseModalPr
             </button>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

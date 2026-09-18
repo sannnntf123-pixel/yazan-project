@@ -1,40 +1,32 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Flame, CreditCard, Clipboard, CheckCircle, Calculator, Percent, Sparkles } from 'lucide-react';
+import { Flame, CreditCard, Clipboard, CheckCircle, Calculator, Percent, Sparkles } from 'lucide-react';
+import { PRICING } from '@/config/pricing';
+import { BANK_DETAILS } from '@/config/bankDetails';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 interface PricingCalculatorProps {
   onSelectOption: (optionName: string, amount: number) => void;
 }
 
+type Plan = 'individual' | 'group';
+
+const formatSar = (amount: number) => `${amount.toLocaleString()} SAR`;
+
 export default function PricingCalculator({ onSelectOption }: PricingCalculatorProps) {
-  const [activePlan, setActivePlan] = useState<'individual' | 'group'>('group');
-  const [oneOnOneHours, setOneOnOneHours] = useState(10);
-  const [copiedText, setCopiedText] = useState<'iban' | 'stc' | null>(null);
+  const [activePlan, setActivePlan] = useState<Plan>('group');
+  const [oneOnOneHours, setOneOnOneHours] = useState<number>(PRICING.oneOnOne.defaultHours);
+  const { copiedKey: copiedText, copy: handleCopy } = useCopyToClipboard<'iban' | 'stc'>();
 
-  // Constants requested by user
-  const priceOneOnOneOriginal = 400; // SAR / hour
-  const priceOneOnOneDiscount = 250; // SAR / hour
+  const { oneOnOne, group } = PRICING;
 
-  const priceGroupOriginal = 5000; // SAR
-  const priceGroupDiscount = 1900; // SAR
+  const oneOnOneTotalOriginal = oneOnOneHours * oneOnOne.originalPerHour;
+  const oneOnOneTotalDiscount = oneOnOneHours * oneOnOne.discountPerHour;
+  const oneOnOneTotalSavings = oneOnOneTotalOriginal - oneOnOneTotalDiscount;
 
-  // Calculations
-  const calcOneOnOneTotalOriginal = oneOnOneHours * priceOneOnOneOriginal;
-  const calcOneOnOneTotalDiscount = oneOnOneHours * priceOneOnOneDiscount;
-  const calcOneOnOneTotalSavings = calcOneOnOneTotalOriginal - calcOneOnOneTotalDiscount;
-
-  const groupSavings = priceGroupOriginal - priceGroupDiscount;
-
-  // Real bank placeholders
-  const ibanPlaceholder = "SA37 1000 0011 1003 7585 5900";
-  const stcPayPlaceholder = "0597621520";
-
-  const handleCopy = (text: string, type: 'iban' | 'stc') => {
-    navigator.clipboard.writeText(text);
-    setCopiedText(type);
-    setTimeout(() => setCopiedText(null), 2500);
-  };
+  const groupSavings = group.original - group.discount;
+  const groupDiscountPercent = Math.round((groupSavings / group.original) * 100);
 
   return (
     <div className="space-y-8">
@@ -83,13 +75,13 @@ export default function PricingCalculator({ onSelectOption }: PricingCalculatorP
                 {/* Price Display */}
                 <div className="my-6 flex items-baseline gap-3.5">
                   <div className="text-4xl sm:text-5xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-accent to-electric-blue">
-                    1,900 <span className="text-xs sm:text-sm font-mono font-normal text-white uppercase">SAR</span>
+                    {group.discount.toLocaleString()} <span className="text-xs sm:text-sm font-mono font-normal text-white uppercase">SAR</span>
                   </div>
                   <div className="text-sm font-mono text-brand-silver line-through">
-                    5,000 SAR
+                    {formatSar(group.original)}
                   </div>
                   <span className="text-[10px] font-mono font-bold bg-green-500/10 text-green-400 px-2 py-0.5 rounded border border-green-500/25 uppercase">
-                    Save {( (priceGroupOriginal - priceGroupDiscount) / priceGroupOriginal * 100 ).toFixed(0)}%
+                    Save {groupDiscountPercent}%
                   </span>
                 </div>
 
@@ -119,7 +111,7 @@ export default function PricingCalculator({ onSelectOption }: PricingCalculatorP
 
               <div className="mt-8">
                 <button
-                  onClick={() => onSelectOption('Group Course Package', priceGroupDiscount)}
+                  onClick={() => onSelectOption('Group Course Package', group.discount)}
                   id="enroll-group-pkg-btn"
                   className="w-full py-4 text-xs sm:text-sm font-display font-bold rounded-xl bg-gradient-to-r from-electric-blue via-cyan-accent to-electric-blue text-white shadow-xl shadow-electric-blue/20 hover:shadow-cyan-accent/25 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer"
                 >
@@ -145,10 +137,10 @@ export default function PricingCalculator({ onSelectOption }: PricingCalculatorP
                 {/* Price Display */}
                 <div className="my-6 flex items-baseline gap-3">
                   <div className="text-4xl sm:text-5xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-accent to-electric-blue">
-                    250 <span className="text-xs sm:text-sm font-mono font-normal text-white uppercase">SAR / hour</span>
+                    {oneOnOne.discountPerHour} <span className="text-xs sm:text-sm font-mono font-normal text-white uppercase">SAR / hour</span>
                   </div>
                   <div className="text-sm font-mono text-brand-silver line-through">
-                    400 SAR/hour
+                    {oneOnOne.originalPerHour} SAR/hour
                   </div>
                 </div>
 
@@ -166,8 +158,8 @@ export default function PricingCalculator({ onSelectOption }: PricingCalculatorP
                   </div>
                   <input
                     type="range"
-                    min="2"
-                    max="40"
+                    min={oneOnOne.minHours}
+                    max={oneOnOne.maxHours}
                     value={oneOnOneHours}
                     onChange={(e) => setOneOnOneHours(parseInt(e.target.value))}
                     className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-accent"
@@ -201,11 +193,11 @@ export default function PricingCalculator({ onSelectOption }: PricingCalculatorP
 
               <div className="mt-8">
                 <button
-                  onClick={() => onSelectOption(`${oneOnOneHours}-Hour One-on-One Program`, calcOneOnOneTotalDiscount)}
+                  onClick={() => onSelectOption(`${oneOnOneHours}-Hour One-on-One Program`, oneOnOneTotalDiscount)}
                   id="book-one-on-one-btn"
                   className="w-full py-4 text-xs sm:text-sm font-display font-bold rounded-xl bg-gradient-to-r from-electric-blue via-cyan-accent to-electric-blue text-white shadow-xl shadow-electric-blue/20 hover:shadow-cyan-accent/25 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer"
                 >
-                  Book Now ({calcOneOnOneTotalDiscount.toLocaleString()} SAR)
+                  Book Now ({formatSar(oneOnOneTotalDiscount)})
                 </button>
               </div>
             </div>
@@ -233,8 +225,8 @@ export default function PricingCalculator({ onSelectOption }: PricingCalculatorP
                 <span>Standard Base Rate:</span>
                 <span className="text-white line-through">
                   {activePlan === 'group'
-                    ? `${priceGroupOriginal.toLocaleString()} SAR`
-                    : `${calcOneOnOneTotalOriginal.toLocaleString()} SAR`}
+                    ? formatSar(group.original)
+                    : formatSar(oneOnOneTotalOriginal)}
                 </span>
               </div>
 
@@ -244,8 +236,8 @@ export default function PricingCalculator({ onSelectOption }: PricingCalculatorP
                 </span>
                 <span className="text-green-400 font-semibold">
                   -{activePlan === 'group'
-                    ? `${groupSavings.toLocaleString()} SAR`
-                    : `${calcOneOnOneTotalSavings.toLocaleString()} SAR`}
+                    ? formatSar(groupSavings)
+                    : formatSar(oneOnOneTotalSavings)}
                 </span>
               </div>
 
@@ -253,8 +245,8 @@ export default function PricingCalculator({ onSelectOption }: PricingCalculatorP
                 <span className="text-white font-sans font-bold">Total Tuition Due:</span>
                 <span className="text-xl font-display font-extrabold text-cyan-accent">
                   {activePlan === 'group'
-                    ? `${priceGroupDiscount.toLocaleString()} SAR`
-                    : `${calcOneOnOneTotalDiscount.toLocaleString()} SAR`}
+                    ? formatSar(group.discount)
+                    : formatSar(oneOnOneTotalDiscount)}
                 </span>
               </div>
             </div>
@@ -291,10 +283,10 @@ export default function PricingCalculator({ onSelectOption }: PricingCalculatorP
                 <div className="bg-navy-dark border border-white/5 rounded-lg px-3 py-2 flex items-center justify-between font-mono text-xs">
                   <div className="truncate pr-2">
                     <span className="text-[10px] text-brand-silver block uppercase text-[8px] tracking-wider">IBAN Placeholder</span>
-                    <span className="text-cyan-accent select-all text-xs tracking-wider">{ibanPlaceholder}</span>
+                    <span className="text-cyan-accent select-all text-xs tracking-wider">{BANK_DETAILS.iban}</span>
                   </div>
                   <button
-                    onClick={() => handleCopy(ibanPlaceholder, 'iban')}
+                    onClick={() => handleCopy(BANK_DETAILS.iban, 'iban')}
                     className="p-1.5 rounded bg-white/5 text-brand-silver hover:bg-white/10 hover:text-white transition-all cursor-pointer"
                     title="Copy IBAN"
                   >
@@ -321,10 +313,10 @@ export default function PricingCalculator({ onSelectOption }: PricingCalculatorP
                 <div className="bg-navy-dark border border-white/5 rounded-lg px-3 py-2 flex items-center justify-between font-mono text-xs">
                   <div>
                     <span className="text-[10px] text-brand-silver block uppercase text-[8px] tracking-wider">Mobile Account</span>
-                    <span className="text-cyan-accent select-all text-sm font-semibold tracking-wider">{stcPayPlaceholder}</span>
+                    <span className="text-cyan-accent select-all text-sm font-semibold tracking-wider">{BANK_DETAILS.stcPayNumber}</span>
                   </div>
                   <button
-                    onClick={() => handleCopy(stcPayPlaceholder, 'stc')}
+                    onClick={() => handleCopy(BANK_DETAILS.stcPayNumber, 'stc')}
                     className="p-1.5 rounded bg-white/5 text-brand-silver hover:bg-white/10 hover:text-white transition-all cursor-pointer"
                     title="Copy Wallet Number"
                   >

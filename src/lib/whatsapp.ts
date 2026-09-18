@@ -1,6 +1,6 @@
-import { EnrollmentFormData, EnrollmentPayload, EnrollmentSubmitResult } from '../types/enrollment';
-import { sanitizeInput } from '../utils/validation';
-import { ACADEMY_WHATSAPP } from '../config/bankDetails';
+import type { EnrollmentFormData, EnrollmentPayload, EnrollmentSubmitResult } from '@/types';
+import { sanitizeInput } from '@/utils/validation';
+import { ACADEMY_WHATSAPP } from '@/config/site';
 
 /**
  * WHATSAPP ENROLLMENT SERVICE
@@ -10,8 +10,14 @@ import { ACADEMY_WHATSAPP } from '../config/bankDetails';
  * the registration straight to the academy's admissions WhatsApp.
  */
 
-export function buildWhatsAppUrl(text: string): string {
-  return `https://wa.me/${ACADEMY_WHATSAPP}?text=${encodeURIComponent(text)}`;
+export function buildWhatsAppUrl(text?: string): string {
+  const base = `https://wa.me/${ACADEMY_WHATSAPP}`;
+  return text ? `${base}?text=${encodeURIComponent(text)}` : base;
+}
+
+/** Open a WhatsApp chat with the academy, optionally pre-filled with `text`. */
+export function openWhatsApp(text?: string): Window | null {
+  return window.open(buildWhatsAppUrl(text), '_blank', 'noopener');
 }
 
 export function buildEnrollmentMessage(p: EnrollmentPayload): string {
@@ -54,7 +60,7 @@ export function submitEnrollmentViaWhatsApp(formData: EnrollmentFormData): Enrol
   };
 
   // Must run synchronously inside the submit click so popup blockers allow it.
-  const opened = window.open(buildWhatsAppUrl(buildEnrollmentMessage(payload)), '_blank', 'noopener');
+  const opened = openWhatsApp(buildEnrollmentMessage(payload));
 
   if (!opened) {
     return {

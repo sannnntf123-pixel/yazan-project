@@ -1,4 +1,4 @@
-import { EnrollmentFormData, EnrollmentFormErrors } from '../types/enrollment';
+import { EnrollmentFormData, EnrollmentFormErrors } from '@/types';
 
 /**
  * Sanitizes input string to prevent XSS and malformed payloads

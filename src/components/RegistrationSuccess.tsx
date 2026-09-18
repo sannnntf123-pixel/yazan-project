@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   CheckCircle2,
   Copy,
@@ -13,49 +13,57 @@ import {
   FileCheck,
   Mail,
   ArrowLeft,
-  Share2,
   Clock,
-  ShieldCheck,
-  Sparkles,
-  ExternalLink
+  Sparkles
 } from 'lucide-react';
-import { EnrollmentPayload } from '../types/enrollment';
-import { BANK_DETAILS } from '../config/bankDetails';
+import type { EnrollmentPayload } from '@/types';
+import { BANK_DETAILS } from '@/config/bankDetails';
+import { ENROLLMENT_STORAGE_KEY } from '@/config/site';
+import { openWhatsApp } from '@/lib/whatsapp';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 interface RegistrationSuccessProps {
   enrollmentData: EnrollmentPayload | null;
   onReturnHome: () => void;
 }
 
+const FALLBACK_ENROLLMENT: EnrollmentPayload = {
+  studentName: 'Valued Student',
+  studentEmail: 'student@example.com',
+  studentPhone: '+961 76 688 522',
+  country: 'Saudi Arabia',
+  course: 'AP Physics 1',
+  studyMode: 'Group',
+  preferredBatch: 'Fall 2026 Regular Cohort',
+  paymentMethod: 'IBAN Bank Transfer',
+  status: 'Pending Payment',
+  timestamp: new Date().toISOString(),
+};
+
+function readStoredEnrollment(): EnrollmentPayload | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(ENROLLMENT_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as EnrollmentPayload) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function RegistrationSuccess({ enrollmentData, onReturnHome }: RegistrationSuccessProps) {
-  const [copiedIban, setCopiedIban] = useState(false);
-  // 6-digit reference generated once per mount (was recomputed on every render before)
+  const { copiedKey, copy } = useCopyToClipboard<'iban'>();
+  const copiedIban = copiedKey === 'iban';
+  // 6-digit reference generated once per mount
   const [refCode] = useState(() => Date.now().toString().slice(-6));
 
-  // Retrieve fallback data from session storage if state not passed
-  const data: EnrollmentPayload = enrollmentData || JSON.parse(
-    sessionStorage.getItem('latest_enrollment_registration') || '{}'
-  ) || {
-    studentName: 'Valued Student',
-    studentEmail: 'student@example.com',
-    studentPhone: '+966 50 123 4567',
-    country: 'Saudi Arabia',
-    course: 'AP Physics 1',
-    studyMode: 'Group',
-    preferredBatch: 'Fall 2026 Regular Cohort',
-    paymentMethod: 'IBAN Bank Transfer',
-    status: 'Pending Payment',
-    timestamp: new Date().toISOString()
-  };
+  // Fall back to the last submission saved in sessionStorage (e.g. after a reload).
+  // Read once in a state initializer so render stays pure and SSR-safe.
+  const [data] = useState<EnrollmentPayload>(() => enrollmentData ?? readStoredEnrollment() ?? FALLBACK_ENROLLMENT);
 
-  const handleCopyIban = () => {
-    navigator.clipboard.writeText(BANK_DETAILS.iban);
-    setCopiedIban(true);
-    setTimeout(() => setCopiedIban(false), 2500);
-  };
+  const handleCopyIban = () => copy(BANK_DETAILS.iban, 'iban');
 
   const getWhatsAppTransferText = () => {
-    return encodeURIComponent(
+    return (
       `Hello Momentum Physics Academy!\n\n` +
       `I have submitted my enrollment registration and completed my payment transfer.\n\n` +
       `• Student Name: ${data.studentName || 'Student'}\n` +
@@ -67,10 +75,7 @@ export default function RegistrationSuccess({ enrollmentData, onReturnHome }: Re
     );
   };
 
-  const handleWhatsAppTransferNotification = () => {
-    const url = `https://wa.me/${BANK_DETAILS.whatsappContact}?text=${getWhatsAppTransferText()}`;
-    window.open(url, '_blank');
-  };
+  const handleWhatsAppTransferNotification = () => openWhatsApp(getWhatsAppTransferText());
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 sm:py-20 space-y-8 animate-fade-in">

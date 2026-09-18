@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import { useEffect } from 'react';
 import {
   GraduationCap,
   User,
@@ -17,12 +17,13 @@ import {
   AlertCircle,
   MessageCircle,
   ShieldCheck,
-  Sparkles,
-  Users
+  Sparkles
 } from 'lucide-react';
-import { useEnrollmentForm } from '../hooks/useEnrollmentForm';
-import { ACADEMY_WHATSAPP, AVAILABLE_COURSES, COUNTRIES_LIST, PAYMENT_METHODS, PREFERRED_BATCHES, STUDY_MODES } from '../config/bankDetails';
-import { EnrollmentPayload, PaymentMethod } from '../types/enrollment';
+import { useEnrollmentForm } from '@/hooks/useEnrollmentForm';
+import { AVAILABLE_COURSES, COUNTRIES_LIST, PAYMENT_METHODS, PREFERRED_BATCHES, STUDY_MODES } from '@/config/bankDetails';
+import { openWhatsApp } from '@/lib/whatsapp';
+import { SelectField, TextField } from '@/components/ui/FormField';
+import type { EnrollmentPayload, PaymentMethod } from '@/types';
 
 interface EnrollmentFormProps {
   onSuccess: (data: EnrollmentPayload) => void;
@@ -44,17 +45,16 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
   } = useEnrollmentForm(onSuccess);
 
   // If preselected course passed from Course Cards
-  React.useEffect(() => {
+  useEffect(() => {
     if (preselectedCourse) {
       setFormData((prev) => ({ ...prev, course: preselectedCourse }));
     }
   }, [preselectedCourse, setFormData]);
 
   const handleDirectWhatsApp = () => {
-    const text = encodeURIComponent(
+    openWhatsApp(
       `Hello Momentum Physics! I am interested in enrolling in the ${formData.course || 'Physics'} program (${formData.studyMode} mode). Please send me enrollment details!`
     );
-    window.open(`https://wa.me/${ACADEMY_WHATSAPP}?text=${text}`, '_blank');
   };
 
   return (
@@ -181,130 +181,74 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
             </h5>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Student Full Name */}
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-xs text-brand-silver font-medium flex items-center justify-between">
-                  <span>Student Full Name *</span>
-                  {errors.studentName && <span className="text-red-400 text-[10px]">{errors.studentName}</span>}
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 absolute left-3 top-3 text-brand-silver/60" />
-                  <input
-                    type="text"
-                    name="studentName"
-                    value={formData.studentName}
-                    onChange={handleChange}
-                    placeholder="e.g. Faisal Al-Mansoor"
-                    disabled={isSubmitting}
-                    className={`w-full bg-brand-black/60 border rounded-xl pl-9 pr-3 py-2.5 text-xs text-white placeholder-brand-silver/40 focus:outline-none transition-all ${
-                      errors.studentName ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-cyan-accent'
-                    }`}
-                  />
-                </div>
-              </div>
-
-              {/* Student Email */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-brand-silver font-medium flex items-center justify-between">
-                  <span>Student Email *</span>
-                  {errors.studentEmail && <span className="text-red-400 text-[10px]">{errors.studentEmail}</span>}
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 absolute left-3 top-3 text-brand-silver/60" />
-                  <input
-                    type="email"
-                    name="studentEmail"
-                    value={formData.studentEmail}
-                    onChange={handleChange}
-                    placeholder="student@example.com"
-                    disabled={isSubmitting}
-                    className={`w-full bg-brand-black/60 border rounded-xl pl-9 pr-3 py-2.5 text-xs text-white placeholder-brand-silver/40 focus:outline-none transition-all ${
-                      errors.studentEmail ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-cyan-accent'
-                    }`}
-                  />
-                </div>
-              </div>
-
-              {/* Student Phone */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-brand-silver font-medium flex items-center justify-between">
-                  <span>Student Phone *</span>
-                  {errors.studentPhone && <span className="text-red-400 text-[10px]">{errors.studentPhone}</span>}
-                </label>
-                <div className="relative">
-                  <Phone className="w-4 h-4 absolute left-3 top-3 text-brand-silver/60" />
-                  <input
-                    type="tel"
-                    name="studentPhone"
-                    value={formData.studentPhone}
-                    onChange={handleChange}
-                    placeholder="+966 50 123 4567"
-                    disabled={isSubmitting}
-                    className={`w-full bg-brand-black/60 border rounded-xl pl-9 pr-3 py-2.5 text-xs text-white placeholder-brand-silver/40 focus:outline-none transition-all ${
-                      errors.studentPhone ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-cyan-accent'
-                    }`}
-                  />
-                </div>
-              </div>
-
-              {/* Parent Name (Optional) */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-brand-silver font-medium">
-                  Parent / Guardian Name <span className="text-brand-silver/40 text-[10px]">(Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  name="parentName"
-                  value={formData.parentName}
-                  onChange={handleChange}
-                  placeholder="e.g. Mohammed Al-Mansoor"
-                  disabled={isSubmitting}
-                  className="w-full bg-brand-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder-brand-silver/40 focus:border-cyan-accent focus:outline-none transition-all"
-                />
-              </div>
-
-              {/* Parent Phone (Optional) */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-brand-silver font-medium flex justify-between">
-                  <span>Parent / Guardian Phone <span className="text-brand-silver/40 text-[10px]">(Optional)</span></span>
-                  {errors.parentPhone && <span className="text-red-400 text-[10px]">{errors.parentPhone}</span>}
-                </label>
-                <input
-                  type="tel"
-                  name="parentPhone"
-                  value={formData.parentPhone}
-                  onChange={handleChange}
-                  placeholder="+961 76 688 522"
-                  disabled={isSubmitting}
-                  className={`w-full bg-brand-black/60 border rounded-xl px-3 py-2.5 text-xs text-white placeholder-brand-silver/40 focus:outline-none transition-all ${
-                    errors.parentPhone ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-cyan-accent'
-                  }`}
-                />
-              </div>
-
-              {/* Country */}
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-xs text-brand-silver font-medium flex items-center justify-between">
-                  <span>Country of Residence *</span>
-                  {errors.country && <span className="text-red-400 text-[10px]">{errors.country}</span>}
-                </label>
-                <div className="relative">
-                  <Globe className="w-4 h-4 absolute left-3 top-3 text-brand-silver/60" />
-                  <select
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    disabled={isSubmitting}
-                    className="w-full bg-brand-black/60 border border-white/10 rounded-xl pl-9 pr-8 py-2.5 text-xs text-white focus:border-cyan-accent focus:outline-none transition-all appearance-none cursor-pointer"
-                  >
-                    {COUNTRIES_LIST.map((c) => (
-                      <option key={c} value={c} className="bg-navy-dark text-white">
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              <TextField
+                label="Student Full Name"
+                name="studentName"
+                required
+                icon={User}
+                type="text"
+                value={formData.studentName}
+                onChange={handleChange}
+                placeholder="e.g. Faisal Al-Mansoor"
+                disabled={isSubmitting}
+                error={errors.studentName}
+                className="sm:col-span-2"
+              />
+              <TextField
+                label="Student Email"
+                name="studentEmail"
+                required
+                icon={Mail}
+                type="email"
+                value={formData.studentEmail}
+                onChange={handleChange}
+                placeholder="student@example.com"
+                disabled={isSubmitting}
+                error={errors.studentEmail}
+              />
+              <TextField
+                label="Student Phone"
+                name="studentPhone"
+                required
+                icon={Phone}
+                type="tel"
+                value={formData.studentPhone}
+                onChange={handleChange}
+                placeholder="+961 76 688 522"
+                disabled={isSubmitting}
+                error={errors.studentPhone}
+              />
+              <TextField
+                label="Parent / Guardian Name"
+                name="parentName"
+                type="text"
+                value={formData.parentName}
+                onChange={handleChange}
+                placeholder="e.g. Mohammed Al-Mansoor"
+                disabled={isSubmitting}
+              />
+              <TextField
+                label="Parent / Guardian Phone"
+                name="parentPhone"
+                type="tel"
+                value={formData.parentPhone}
+                onChange={handleChange}
+                placeholder="+961 76 688 522"
+                disabled={isSubmitting}
+                error={errors.parentPhone}
+              />
+              <SelectField
+                label="Country of Residence"
+                name="country"
+                required
+                icon={Globe}
+                options={COUNTRIES_LIST}
+                value={formData.country}
+                onChange={handleChange}
+                disabled={isSubmitting}
+                error={errors.country}
+                className="sm:col-span-2"
+              />
             </div>
           </div>
 
@@ -316,63 +260,42 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
             </h5>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Course selection */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-brand-silver font-medium flex items-center justify-between">
-                  <span>Target Physics Course *</span>
-                  {errors.course && <span className="text-red-400 text-[10px]">{errors.course}</span>}
-                </label>
-                <select
-                  name="course"
-                  value={formData.course}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  className="w-full bg-brand-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:border-cyan-accent focus:outline-none transition-all cursor-pointer"
-                >
-                  {AVAILABLE_COURSES.map((c) => (
-                    <option key={c} value={c} className="bg-navy-dark text-white">
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Preferred Batch */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-brand-silver font-medium flex items-center justify-between">
-                  <span>Preferred Batch Schedule *</span>
-                  {errors.preferredBatch && <span className="text-red-400 text-[10px]">{errors.preferredBatch}</span>}
-                </label>
-                <div className="relative">
-                  <Calendar className="w-4 h-4 absolute left-3 top-3 text-brand-silver/60" />
-                  <select
-                    name="preferredBatch"
-                    value={formData.preferredBatch}
-                    onChange={handleChange}
-                    disabled={isSubmitting}
-                    className="w-full bg-brand-black/60 border border-white/10 rounded-xl pl-9 pr-8 py-2.5 text-xs text-white focus:border-cyan-accent focus:outline-none transition-all cursor-pointer appearance-none"
-                  >
-                    {PREFERRED_BATCHES.map((b) => (
-                      <option key={b} value={b} className="bg-navy-dark text-white">
-                        {b}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              <SelectField
+                label="Target Physics Course"
+                name="course"
+                required
+                options={AVAILABLE_COURSES}
+                value={formData.course}
+                onChange={handleChange}
+                disabled={isSubmitting}
+                error={errors.course}
+              />
+              <SelectField
+                label="Preferred Batch Schedule"
+                name="preferredBatch"
+                required
+                icon={Calendar}
+                options={PREFERRED_BATCHES}
+                value={formData.preferredBatch}
+                onChange={handleChange}
+                disabled={isSubmitting}
+                error={errors.preferredBatch}
+              />
 
               {/* Study Mode Radio Buttons */}
               <div className="space-y-2 sm:col-span-2" data-field="studyMode">
-                <label className="text-xs text-brand-silver font-medium block">
+                <span id="study-mode-label" className="text-xs text-brand-silver font-medium block">
                   Study Format / Mode *
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                </span>
+                <div role="radiogroup" aria-labelledby="study-mode-label" className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {STUDY_MODES.map((mode) => {
                     const isSelected = formData.studyMode === mode.id;
                     return (
                       <button
                         key={mode.id}
                         type="button"
+                        role="radio"
+                        aria-checked={isSelected}
                         onClick={() => handleStudyModeChange(mode.id)}
                         disabled={isSubmitting}
                         className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-3 ${
@@ -411,7 +334,7 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
               3. Payment Method
             </h5>
 
-            <div className="grid grid-cols-1 gap-3">
+            <div role="radiogroup" aria-label="Payment method" className="grid grid-cols-1 gap-3">
               {PAYMENT_METHODS.map((method) => {
                 const isSelected = formData.paymentMethod === method.id;
                 const isComingSoon = method.status === 'coming_soon';
@@ -420,6 +343,8 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
                   <button
                     key={method.id}
                     type="button"
+                    role="radio"
+                    aria-checked={isSelected}
                     onClick={() => handlePaymentMethodChange(method.id as PaymentMethod)}
                     disabled={isSubmitting || isComingSoon}
                     className={`p-3.5 rounded-xl border text-left transition-all flex items-center justify-between ${
@@ -461,11 +386,12 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
 
           {/* SECTION 4: Additional Notes */}
           <div className="space-y-1.5 pt-2 border-t border-white/5">
-            <label className="text-xs text-brand-silver font-medium flex items-center gap-1.5">
+            <label htmlFor="notes" className="text-xs text-brand-silver font-medium flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-cyan-accent" />
               Additional Notes or Specific Goals <span className="text-brand-silver/40 text-[10px]">(Optional)</span>
             </label>
             <textarea
+              id="notes"
               name="notes"
               value={formData.notes}
               onChange={handleChange}

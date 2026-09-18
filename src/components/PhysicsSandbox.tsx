@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Activity, ArrowRight, Info } from 'lucide-react';
+import { Play, Pause, RotateCcw, Activity, Info } from 'lucide-react';
 
 interface Puck {
   x: number;

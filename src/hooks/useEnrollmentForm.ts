@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { EnrollmentFormData, EnrollmentFormErrors, EnrollmentPayload } from '../types/enrollment';
-import { validateEnrollmentForm } from '../utils/validation';
-import { submitEnrollmentViaWhatsApp } from '../services/whatsapp';
+import { EnrollmentFormData, EnrollmentFormErrors, EnrollmentPayload } from '@/types';
+import { validateEnrollmentForm } from '@/utils/validation';
+import { submitEnrollmentViaWhatsApp } from '@/lib/whatsapp';
+import { ENROLLMENT_STORAGE_KEY } from '@/config/site';
 
 const initialFormData: EnrollmentFormData = {
   studentName: '',
@@ -113,7 +114,7 @@ export function useEnrollmentForm(onSuccessCallback?: (payload: EnrollmentPayloa
         });
 
         // Store submitted registration details in session storage for the success page
-        sessionStorage.setItem('latest_enrollment_registration', JSON.stringify(result.data));
+        sessionStorage.setItem(ENROLLMENT_STORAGE_KEY, JSON.stringify(result.data));
 
         if (onSuccessCallback) {
           onSuccessCallback(result.data);

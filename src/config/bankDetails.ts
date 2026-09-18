@@ -1,7 +1,5 @@
-import { BankDetails } from '../types/enrollment';
-
-/** Academy admissions WhatsApp number in international format (no "+"): +961 76 688 522 */
-export const ACADEMY_WHATSAPP = '96176688522';
+import type { BankDetails } from '@/types';
+import { ACADEMY_WHATSAPP } from '@/config/site';
 
 export const BANK_DETAILS: BankDetails = {
   bankName: 'Al Rajhi Bank',

@@ -21,6 +21,17 @@ html {
   color: #ffffff;
 }
 
+/* Clip horizontal overflow at the viewport (not on a wrapper div, which
+   would become the scroll container and break the sticky header). */
+body {
+  overflow-x: hidden;
+}
+
+/* Keep anchored sections clear of the sticky header. */
+section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -37,19 +48,25 @@ html {
 }
 
 /* Keyframe animations */
-@keyframes pulse-glow {
-  0%, 100% {
-    opacity: 0.4;
-    filter: drop-shadow(0 0 15px rgba(30, 144, 255, 0.6));
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
-  50% {
-    opacity: 0.8;
-    filter: drop-shadow(0 0 25px rgba(66, 183, 255, 0.9));
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
-.glow-effect {
-  animation: pulse-glow 4s infinite ease-in-out;
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation: none;
+  }
 }
 
 /* Custom styles for interactive elements */
