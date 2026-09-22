@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { unstable_cache } from 'next/cache';
 import type { SiteContent } from '@/types';
 import { DEFAULT_CONTENT } from '@/data/defaultContent';
 import { siteContentSchema } from './content-schema';
@@ -22,6 +23,15 @@ function selectStore(): ContentStore {
 const store = selectStore();
 
 export const contentStoreName = store.name;
+
+/** Cache tag expired by the admin actions after every save/reset. */
+export const CONTENT_CACHE_TAG = 'site-content';
+
+/**
+ * Reads go through Next's data cache, so the backend is only hit once per
+ * save rather than on every page view (keeps Blob operations near zero).
+ */
+const readStoredContent = unstable_cache(() => store.read(), [CONTENT_CACHE_TAG], { tags: [CONTENT_CACHE_TAG] });
 
 /**
  * A warning for the admin UI when content cannot persist on this host —
@@ -50,7 +60,7 @@ function mergeWithDefaults<T>(defaults: T, stored: unknown): T {
 
 export async function getSiteContent(): Promise<SiteContent> {
   try {
-    const stored = await store.read();
+    const stored = await readStoredContent();
     if (stored === null) return DEFAULT_CONTENT;
 
     const parsed = siteContentSchema.safeParse(mergeWithDefaults(DEFAULT_CONTENT, stored));

@@ -1,7 +1,7 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { z } from 'zod';
 import {
   clearAttempts,
@@ -12,7 +12,14 @@ import {
   recordFailedAttempt,
   verifyCredentials,
 } from '@/lib/auth';
-import { contentStoreName, contentStoreWarning, getSiteContent, resetSiteContent, saveSiteContent } from '@/lib/content-store';
+import {
+  CONTENT_CACHE_TAG,
+  contentStoreName,
+  contentStoreWarning,
+  getSiteContent,
+  resetSiteContent,
+  saveSiteContent,
+} from '@/lib/content-store';
 import { siteContentSchema } from '@/lib/content-schema';
 import type { SiteContent } from '@/types';
 
@@ -64,6 +71,7 @@ export async function saveContent(content: SiteContent): Promise<ActionResult> {
     return { ok: false, error: storageErrorMessage(error) };
   }
 
+  updateTag(CONTENT_CACHE_TAG);
   revalidatePath('/');
   return { ok: true };
 }
@@ -78,6 +86,7 @@ export async function resetContent(): Promise<ActionResult> {
     return { ok: false, error: storageErrorMessage(error) };
   }
 
+  updateTag(CONTENT_CACHE_TAG);
   revalidatePath('/');
   revalidatePath('/admin');
   return { ok: true };
