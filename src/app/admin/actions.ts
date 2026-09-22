@@ -12,7 +12,7 @@ import {
   recordFailedAttempt,
   verifyCredentials,
 } from '@/lib/auth';
-import { getSiteContent, resetSiteContent, saveSiteContent } from '@/lib/content-store';
+import { contentStoreName, getSiteContent, resetSiteContent, saveSiteContent } from '@/lib/content-store';
 import { siteContentSchema } from '@/lib/content-schema';
 import type { SiteContent } from '@/types';
 
@@ -57,17 +57,42 @@ export async function saveContent(content: SiteContent): Promise<ActionResult> {
     return { ok: false, error: `${issue.path.join(' › ') || 'content'}: ${issue.message}` };
   }
 
-  await saveSiteContent(parsed.data as SiteContent);
+  try {
+    await saveSiteContent(parsed.data as SiteContent);
+  } catch (error) {
+    console.error('Saving site content failed:', error);
+    return { ok: false, error: storageErrorMessage(error) };
+  }
+
   revalidatePath('/');
   return { ok: true };
 }
 
 export async function resetContent(): Promise<ActionResult> {
   if (!(await isAuthenticated())) return { ok: false, error: 'Your session has expired. Please sign in again.' };
-  await resetSiteContent();
+
+  try {
+    await resetSiteContent();
+  } catch (error) {
+    console.error('Resetting site content failed:', error);
+    return { ok: false, error: storageErrorMessage(error) };
+  }
+
   revalidatePath('/');
   revalidatePath('/admin');
   return { ok: true };
+}
+
+/** Turn a storage failure into something the admin can act on. */
+function storageErrorMessage(error: unknown): string {
+  const code = (error as NodeJS.ErrnoException)?.code;
+  if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') {
+    return (
+      'This host has a read-only filesystem, so content cannot be saved to a file. ' +
+      'Connect a Vercel Blob store to the project (Storage → Create → Blob) and redeploy.'
+    );
+  }
+  return `Could not save to ${contentStoreName}: ${error instanceof Error ? error.message : 'unknown error'}`;
 }
 
 export async function loadContent(): Promise<SiteContent> {

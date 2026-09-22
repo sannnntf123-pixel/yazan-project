@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { isAuthenticated } from '@/lib/auth';
-import { getSiteContent } from '@/lib/content-store';
+import { contentStoreName, getSiteContent } from '@/lib/content-store';
 import LoginForm from '@/components/admin/LoginForm';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 
@@ -15,5 +15,5 @@ export default async function AdminPage() {
   if (!(await isAuthenticated())) return <LoginForm />;
 
   const content = await getSiteContent();
-  return <AdminDashboard initialContent={content} />;
+  return <AdminDashboard initialContent={content} storeName={contentStoreName} />;
 }

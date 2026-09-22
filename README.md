@@ -29,7 +29,7 @@ src/
   data/                Default content: courses, services, testimonials, FAQ, defaultContent.ts
   config/              formOptions.ts (enrollment selects), site.ts
   hooks/               useEnrollmentForm, useHashView, useSmoothAnchorScroll, useCopyToClipboard
-  lib/                 content-store.ts (JSON file), content-schema.ts (zod), auth.ts, whatsapp.ts
+  lib/                 content-store.ts (+ stores/file, stores/blob), content-schema.ts (zod), auth.ts, whatsapp.ts
   types/ utils/
 content/site-content.json   Written by the CMS (gitignored)
 ```
@@ -51,9 +51,19 @@ cp .env.example .env.local   # then change ADMIN_USERNAME / ADMIN_PASSWORD / ADM
 ```
 
 Sessions are HttpOnly signed cookies (7 days); logins are throttled to 5 failed attempts per
-15 minutes. The store needs a persistent filesystem (`next start` on a VPS or a Docker volume) —
-on serverless hosts such as Vercel the filesystem is read-only, so `src/lib/content-store.ts`
-would need to be pointed at a database or KV store.
+15 minutes (per server instance).
+
+### Storage
+
+The store backend is chosen automatically (`src/lib/content-store.ts`):
+
+| Environment | Backend | Setup |
+| --- | --- | --- |
+| `BLOB_READ_WRITE_TOKEN` set (Vercel) | Vercel Blob, private blob `cms/site-content.json` | Vercel dashboard → project → **Storage** → **Create** → **Blob** → connect to the project → redeploy |
+| otherwise (local dev, VPS, Docker) | `content/site-content.json` on disk | none |
+
+Serverless hosts have a read-only filesystem, so on Vercel the Blob store is required — without
+it the admin shows a clear error on save instead of persisting.
 
 ## WhatsApp enrollment
 

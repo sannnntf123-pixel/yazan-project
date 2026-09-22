@@ -1,20 +1,27 @@
 import 'server-only';
 
-import { promises as fs } from 'fs';
-import path from 'path';
 import type { SiteContent } from '@/types';
 import { DEFAULT_CONTENT } from '@/data/defaultContent';
 import { siteContentSchema } from './content-schema';
+import { createBlobStore } from './stores/blob-store';
+import { createFileStore } from './stores/file-store';
+import type { ContentStore } from './stores/types';
 
 /**
  * CONTENT STORE
  * -------------
- * Site content lives in a single JSON file on disk (gitignored). This works
- * anywhere the app runs on a persistent filesystem (`next start` on a VPS,
- * Docker volume, etc.). To move to a database later, only this file changes.
+ * The CMS persists one JSON document. The backend is picked from the
+ * environment: Vercel Blob when its token is present (serverless hosts have
+ * a read-only filesystem), otherwise a JSON file on disk.
  */
-const CONTENT_DIR = path.join(process.cwd(), 'content');
-const CONTENT_FILE = path.join(CONTENT_DIR, 'site-content.json');
+function selectStore(): ContentStore {
+  if (process.env.BLOB_READ_WRITE_TOKEN) return createBlobStore();
+  return createFileStore();
+}
+
+const store = selectStore();
+
+export const contentStoreName = store.name;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -34,28 +41,24 @@ function mergeWithDefaults<T>(defaults: T, stored: unknown): T {
 
 export async function getSiteContent(): Promise<SiteContent> {
   try {
-    const raw = await fs.readFile(CONTENT_FILE, 'utf8');
-    const merged = mergeWithDefaults(DEFAULT_CONTENT, JSON.parse(raw));
-    const parsed = siteContentSchema.safeParse(merged);
+    const stored = await store.read();
+    if (stored === null) return DEFAULT_CONTENT;
+
+    const parsed = siteContentSchema.safeParse(mergeWithDefaults(DEFAULT_CONTENT, stored));
     if (parsed.success) return parsed.data as SiteContent;
+
     console.error('Stored site content is invalid, falling back to defaults:', parsed.error.issues);
     return DEFAULT_CONTENT;
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      console.error('Could not read site content, falling back to defaults:', error);
-    }
+    console.error(`Could not read site content from ${store.name}, falling back to defaults:`, error);
     return DEFAULT_CONTENT;
   }
 }
 
 export async function saveSiteContent(content: SiteContent): Promise<void> {
-  await fs.mkdir(CONTENT_DIR, { recursive: true });
-  // Write to a temp file then rename so a crash mid-write never leaves a half file.
-  const tmp = `${CONTENT_FILE}.${process.pid}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(content, null, 2), 'utf8');
-  await fs.rename(tmp, CONTENT_FILE);
+  await store.write(content);
 }
 
 export async function resetSiteContent(): Promise<void> {
-  await fs.rm(CONTENT_FILE, { force: true });
+  await store.clear();
 }

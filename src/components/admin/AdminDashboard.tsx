@@ -34,9 +34,10 @@ const SECTIONS: { key: SectionKey; label: string; description: string }[] = [
 
 interface AdminDashboardProps {
   initialContent: SiteContent;
+  storeName: string;
 }
 
-export default function AdminDashboard({ initialContent }: AdminDashboardProps) {
+export default function AdminDashboard({ initialContent, storeName }: AdminDashboardProps) {
   const [saved, setSaved] = useState(initialContent);
   const [draft, setDraft] = useState(initialContent);
   const [active, setActive] = useState<SectionKey>('site');
@@ -131,6 +132,7 @@ export default function AdminDashboard({ initialContent }: AdminDashboardProps) 
             <h1 className="font-display font-bold text-base sm:text-lg truncate">Website Content</h1>
             <p className="text-[11px] text-brand-silver hidden sm:block">
               {isDirty ? <span className="text-amber-300">Unsaved changes</span> : 'All changes published'}
+              <span className="text-brand-silver/50"> · storage: {storeName}</span>
             </p>
           </div>
 
