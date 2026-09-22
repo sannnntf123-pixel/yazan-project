@@ -4,7 +4,7 @@ import { unstable_cache } from 'next/cache';
 import type { SiteContent } from '@/types';
 import { DEFAULT_CONTENT } from '@/data/defaultContent';
 import { siteContentSchema } from './content-schema';
-import { createBlobStore } from './stores/blob-store';
+import { createBlobStore, findBlobToken } from './stores/blob-store';
 import { createFileStore } from './stores/file-store';
 import type { ContentStore } from './stores/types';
 
@@ -15,12 +15,8 @@ import type { ContentStore } from './stores/types';
  * environment: Vercel Blob when its token is present (serverless hosts have
  * a read-only filesystem), otherwise a JSON file on disk.
  */
-function selectStore(): ContentStore {
-  if (process.env.BLOB_READ_WRITE_TOKEN) return createBlobStore();
-  return createFileStore();
-}
-
-const store = selectStore();
+const blobToken = findBlobToken();
+const store: ContentStore = blobToken ? createBlobStore(blobToken) : createFileStore();
 
 export const contentStoreName = store.name;
 
@@ -38,8 +34,8 @@ const readStoredContent = unstable_cache(() => store.read(), [CONTENT_CACHE_TAG]
  * i.e. running on Vercel (read-only filesystem) without a Blob store.
  */
 export const contentStoreWarning: string | null =
-  process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN
-    ? 'Content cannot be saved on Vercel until a Blob store is connected: open the project on vercel.com → Storage → Create Database → Blob → connect it to this project, then redeploy.'
+  process.env.VERCEL && !blobToken
+    ? 'Content cannot be saved on Vercel until a Blob store is connected: open the project on vercel.com → Storage → Create Database → Blob → connect it to this project, then redeploy. If a store is already connected, check Settings → Environment Variables for a *BLOB_READ_WRITE_TOKEN variable in the Production environment.'
     : null;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
