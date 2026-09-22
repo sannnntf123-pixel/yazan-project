@@ -1,6 +1,5 @@
 import type { EnrollmentFormData, EnrollmentPayload, EnrollmentSubmitResult } from '@/types';
 import { sanitizeInput } from '@/utils/validation';
-import { ACADEMY_WHATSAPP } from '@/config/site';
 
 /**
  * WHATSAPP ENROLLMENT SERVICE
@@ -10,14 +9,14 @@ import { ACADEMY_WHATSAPP } from '@/config/site';
  * the registration straight to the academy's admissions WhatsApp.
  */
 
-export function buildWhatsAppUrl(text?: string): string {
-  const base = `https://wa.me/${ACADEMY_WHATSAPP}`;
+export function buildWhatsAppUrl(number: string, text?: string): string {
+  const base = `https://wa.me/${number}`;
   return text ? `${base}?text=${encodeURIComponent(text)}` : base;
 }
 
-/** Open a WhatsApp chat with the academy, optionally pre-filled with `text`. */
-export function openWhatsApp(text?: string): Window | null {
-  return window.open(buildWhatsAppUrl(text), '_blank', 'noopener');
+/** Open a WhatsApp chat with `number`, optionally pre-filled with `text`. */
+export function openWhatsApp(number: string, text?: string): Window | null {
+  return window.open(buildWhatsAppUrl(number, text), '_blank', 'noopener');
 }
 
 export function buildEnrollmentMessage(p: EnrollmentPayload): string {
@@ -42,7 +41,7 @@ export function buildEnrollmentMessage(p: EnrollmentPayload): string {
   return lines.join('\n');
 }
 
-export function submitEnrollmentViaWhatsApp(formData: EnrollmentFormData): EnrollmentSubmitResult {
+export function submitEnrollmentViaWhatsApp(formData: EnrollmentFormData, whatsappNumber: string): EnrollmentSubmitResult {
   const payload: EnrollmentPayload = {
     timestamp: new Date().toISOString(),
     studentName: sanitizeInput(formData.studentName),
@@ -60,7 +59,7 @@ export function submitEnrollmentViaWhatsApp(formData: EnrollmentFormData): Enrol
   };
 
   // Must run synchronously inside the submit click so popup blockers allow it.
-  const opened = openWhatsApp(buildEnrollmentMessage(payload));
+  const opened = openWhatsApp(whatsappNumber, buildEnrollmentMessage(payload));
 
   if (!opened) {
     return {

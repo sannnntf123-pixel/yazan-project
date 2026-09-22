@@ -1,21 +1,20 @@
+'use client';
+
 import Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
-import { TESTIMONIALS } from '@/data/testimonials';
+import { useContent } from '@/components/ContentProvider';
 
 export default function TestimonialsSection() {
+  const { testimonials } = useContent();
   return (
     <section id="testimonials" className="py-16 sm:py-24 border-t border-white/5 bg-gradient-to-b from-brand-black to-navy-dark/30">
       <Container className="text-center space-y-12">
         
-        <SectionHeading
-          eyebrow="Student & Parent Success"
-          title="Hear From Our Alumni"
-          description="Hundreds of high school students have transformed their physics performance, scoring 5s on APs and top-tier Tahsili percentages."
-        />
+        <SectionHeading eyebrow={testimonials.eyebrow} title={testimonials.title} description={testimonials.description} />
 
         {/* Testimonials Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-          {TESTIMONIALS.map((testimonial) => (
+          {testimonials.items.map((testimonial) => (
             <div
               key={testimonial.id}
               className="glass-panel border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-white/20 transition-all relative"

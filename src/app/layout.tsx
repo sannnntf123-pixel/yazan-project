@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { SITE_NAME } from "@/config/site";
+import { DEFAULT_CONTENT } from "@/data/defaultContent";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,17 +21,10 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
-const description =
-  "Premium physics tutoring academy for AP, IGCSE, A Level, and Tahsili physics exams.";
-
+// Fallback metadata; the home page overrides it with CMS-managed values.
 export const metadata: Metadata = {
-  title: SITE_NAME,
-  description,
-  openGraph: {
-    title: SITE_NAME,
-    description,
-    type: "website",
-  },
+  title: DEFAULT_CONTENT.site.name,
+  description: DEFAULT_CONTENT.site.metaDescription,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

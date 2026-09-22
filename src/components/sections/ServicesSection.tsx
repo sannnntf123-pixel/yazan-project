@@ -1,21 +1,26 @@
+'use client';
+
+import { Atom, Award, BookOpen, GraduationCap, TrendingUp, User, Users, Zap, type LucideIcon } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
-import { SERVICES } from '@/data/services';
+import { useContent } from '@/components/ContentProvider';
+import type { ServiceIconName } from '@/types';
+
+const SERVICE_ICON_MAP: Record<ServiceIconName, LucideIcon> = { User, Users, Award, BookOpen, GraduationCap, Zap, Atom, TrendingUp };
 
 export default function ServicesSection() {
+  const { services } = useContent();
   return (
     <section id="services" className="py-16 sm:py-24 border-t border-white/5 bg-gradient-to-b from-navy-dark/20 to-brand-black">
       <Container className="text-center space-y-12">
         
-        <SectionHeading
-          eyebrow="Methodology & Services"
-          title="How We Deliver Results"
-          description="From specialized group classes to tailored private session blocks, we adapt to the individual pacing and calendar of every high school student."
-        />
+        <SectionHeading eyebrow={services.eyebrow} title={services.title} description={services.description} />
 
         {/* Services Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-          {SERVICES.map(({ id, title, description, icon: Icon, accentClassName }) => (
+          {services.items.map(({ id, title, description, icon, accentClassName }) => {
+            const Icon = SERVICE_ICON_MAP[icon] ?? User;
+            return (
             <div
               key={id}
               className="glass-panel border border-white/10 rounded-2xl p-6 space-y-4 hover:border-cyan-accent/30 hover:bg-navy-card/40 transition-all shadow-md"
@@ -34,7 +39,8 @@ export default function ServicesSection() {
                 </p>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
       </Container>

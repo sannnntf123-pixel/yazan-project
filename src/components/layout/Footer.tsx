@@ -4,8 +4,8 @@ import Image from 'next/image';
 import { ArrowUpRight, Globe } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import { NAV_LINKS } from '@/data/navigation';
-import { COPYRIGHT_YEAR, INSTAGRAM_URL, SITE_SHORT_NAME } from '@/config/site';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { useContent } from '@/components/ContentProvider';
 import physicsLogo from '@/assets/images/physics_logo_1784026386356.jpg';
 
 interface FooterProps {
@@ -13,12 +13,13 @@ interface FooterProps {
   onDomainGuideClick: () => void;
 }
 
-const SOCIAL_LINKS = [
-  { label: 'WhatsApp', href: buildWhatsAppUrl() },
-  { label: 'Instagram', href: INSTAGRAM_URL },
-];
-
 export default function Footer({ onHomeClick, onDomainGuideClick }: FooterProps) {
+  const { site, footer } = useContent();
+  const socialLinks = [
+    { label: 'WhatsApp', href: buildWhatsAppUrl(site.whatsappNumber) },
+    ...(site.instagramUrl ? [{ label: 'Instagram', href: site.instagramUrl }] : []),
+  ];
+
   return (
     <footer id="app-footer-brand" className="border-t border-white/5 bg-brand-black py-12 relative z-10">
       <Container className="space-y-10">
@@ -26,7 +27,7 @@ export default function Footer({ onHomeClick, onDomainGuideClick }: FooterProps)
           <div className="space-y-2">
             <Image
               src={physicsLogo}
-              alt={SITE_SHORT_NAME}
+              alt={site.shortName}
               width={40}
               height={40}
               sizes="40px"
@@ -34,7 +35,7 @@ export default function Footer({ onHomeClick, onDomainGuideClick }: FooterProps)
               className="h-10 w-auto object-contain rounded-lg"
             />
             <p className="text-xs text-brand-silver max-w-xs leading-relaxed">
-              Clarity. Strategy. Momentum. Bridging the gap between physical mechanics and examination mastery.
+              {footer.tagline}
             </p>
           </div>
 
@@ -56,10 +57,10 @@ export default function Footer({ onHomeClick, onDomainGuideClick }: FooterProps)
 
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-mono text-brand-silver">
           <p className="text-center sm:text-left">
-            &copy; {COPYRIGHT_YEAR} {SITE_SHORT_NAME}. All Rights Reserved.
+            &copy; {site.copyrightYear} {site.shortName}. All Rights Reserved.
           </p>
           <div className="flex items-center gap-4">
-            {SOCIAL_LINKS.map((link) => (
+            {socialLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}

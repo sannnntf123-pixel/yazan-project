@@ -1,16 +1,4 @@
-import type { BankDetails } from '@/types';
-import { ACADEMY_WHATSAPP } from '@/config/site';
-
-export const BANK_DETAILS: BankDetails = {
-  bankName: 'Al Rajhi Bank',
-  accountName: 'Momentum Physics Academy',
-  iban: 'SA37 1000 0011 1003 7585 5900',
-  swiftCode: 'RJHISARI',
-  currency: 'SAR',
-  stcPayNumber: '+966 59 762 1520',
-  whatsappContact: ACADEMY_WHATSAPP
-};
-
+/** Option lists for the enrollment form selects and button groups. */
 export const AVAILABLE_COURSES = [
   'AP Physics 1',
   'AP Physics 2',

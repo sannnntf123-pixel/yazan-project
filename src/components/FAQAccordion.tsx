@@ -2,16 +2,17 @@
 
 import { useState } from 'react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
-import { FAQ_ITEMS } from '@/data/faq';
+import { useContent } from '@/components/ContentProvider';
 
 export default function FAQAccordion() {
+  const { faq } = useContent();
   const [openId, setOpenId] = useState<string | null>(null);
 
   const toggleItem = (id: string) => setOpenId((current) => (current === id ? null : id));
 
   return (
     <div className="max-w-3xl mx-auto space-y-3">
-      {FAQ_ITEMS.map((item) => {
+      {faq.items.map((item) => {
         const isOpen = openId === item.id;
         return (
           <div

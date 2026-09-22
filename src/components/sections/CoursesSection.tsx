@@ -1,6 +1,8 @@
+'use client';
+
 import Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
-import { COURSES } from '@/data/courses';
+import { useContent } from '@/components/ContentProvider';
 import type { Course } from '@/types';
 
 interface CoursesSectionProps {
@@ -9,19 +11,16 @@ interface CoursesSectionProps {
 }
 
 export default function CoursesSection({ onLearnMore, onEnroll }: CoursesSectionProps) {
+  const { courses } = useContent();
   return (
     <section id="courses" className="py-16 sm:py-24 border-t border-white/5 relative">
       <Container className="text-center space-y-12">
         
-        <SectionHeading
-          eyebrow="Academic Pathways"
-          title="Syllabus Specialized Courses"
-          description="We design structured courses mapped specifically to official exam boards. Select your curriculum track to access topic lists and syllabus outlines."
-        />
+        <SectionHeading eyebrow={courses.eyebrow} title={courses.title} description={courses.description} />
 
         {/* Course Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 text-left">
-          {COURSES.map((course) => (
+          {courses.items.map((course) => (
             <div
               key={course.id}
               className="glass-panel border border-white/10 rounded-2xl p-6 flex flex-col justify-between glass-panel-hover"

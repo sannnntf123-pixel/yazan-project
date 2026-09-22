@@ -42,13 +42,3 @@ export interface EnrollmentSubmitResult {
   data?: EnrollmentPayload;
   isMockFallback?: boolean;
 }
-
-export interface BankDetails {
-  bankName: string;
-  accountName: string;
-  iban: string;
-  swiftCode: string;
-  currency: string;
-  stcPayNumber: string;
-  whatsappContact: string;
-}

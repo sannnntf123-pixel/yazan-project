@@ -17,8 +17,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import type { EnrollmentPayload } from '@/types';
-import { BANK_DETAILS } from '@/config/bankDetails';
 import { ENROLLMENT_STORAGE_KEY } from '@/config/site';
+import { useContent } from '@/components/ContentProvider';
 import { openWhatsApp } from '@/lib/whatsapp';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
@@ -51,6 +51,7 @@ function readStoredEnrollment(): EnrollmentPayload | null {
 }
 
 export default function RegistrationSuccess({ enrollmentData, onReturnHome }: RegistrationSuccessProps) {
+  const { site, bank: BANK_DETAILS } = useContent();
   const { copiedKey, copy } = useCopyToClipboard<'iban'>();
   const copiedIban = copiedKey === 'iban';
   // 6-digit reference generated once per mount
@@ -70,12 +71,12 @@ export default function RegistrationSuccess({ enrollmentData, onReturnHome }: Re
       `• Course: ${data.course || 'Physics'}\n` +
       `• Study Mode: ${data.studyMode || 'Group'}\n` +
       `• Payment Method: ${data.paymentMethod || 'IBAN Bank Transfer'}\n` +
-      `• Bank Account: Al Rajhi Bank\n\n` +
+      `• Bank Account: ${BANK_DETAILS.bankName}\n\n` +
       `Attached is my transfer receipt screenshot for verification. Please activate my Microsoft Teams portal!`
     );
   };
 
-  const handleWhatsAppTransferNotification = () => openWhatsApp(getWhatsAppTransferText());
+  const handleWhatsAppTransferNotification = () => openWhatsApp(site.whatsappNumber, getWhatsAppTransferText());
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 sm:py-20 space-y-8 animate-fade-in">

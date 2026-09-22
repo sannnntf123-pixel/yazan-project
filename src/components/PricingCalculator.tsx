@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { Flame, CreditCard, Clipboard, CheckCircle, Calculator, Percent, Sparkles } from 'lucide-react';
-import { PRICING } from '@/config/pricing';
-import { BANK_DETAILS } from '@/config/bankDetails';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useContent } from '@/components/ContentProvider';
 
 interface PricingCalculatorProps {
   onSelectOption: (optionName: string, amount: number) => void;
@@ -15,11 +14,11 @@ type Plan = 'individual' | 'group';
 const formatSar = (amount: number) => `${amount.toLocaleString()} SAR`;
 
 export default function PricingCalculator({ onSelectOption }: PricingCalculatorProps) {
+  const { pricing, bank: BANK_DETAILS } = useContent();
+  const { oneOnOne, group } = pricing;
   const [activePlan, setActivePlan] = useState<Plan>('group');
-  const [oneOnOneHours, setOneOnOneHours] = useState<number>(PRICING.oneOnOne.defaultHours);
+  const [oneOnOneHours, setOneOnOneHours] = useState<number>(oneOnOne.defaultHours);
   const { copiedKey: copiedText, copy: handleCopy } = useCopyToClipboard<'iban' | 'stc'>();
-
-  const { oneOnOne, group } = PRICING;
 
   const oneOnOneTotalOriginal = oneOnOneHours * oneOnOne.originalPerHour;
   const oneOnOneTotalDiscount = oneOnOneHours * oneOnOne.discountPerHour;

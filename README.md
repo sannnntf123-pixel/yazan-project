@@ -24,16 +24,37 @@ src/
     sections/          One component per landing section (Hero, About, Courses, ...)
     ui/                Shared primitives: Container, SectionHeading, Modal, FormField
     *.tsx              Feature components (EnrollmentForm, PricingCalculator, PhysicsSandbox, ...)
-  data/                Static content: courses, services, testimonials, FAQ, nav links
-  config/              site.ts (brand, WhatsApp), pricing.ts, bankDetails.ts (+ form option lists)
+    admin/             Login form, CMS dashboard, section editors
+  app/admin/           /admin route + server actions (login, save, reset)
+  data/                Default content: courses, services, testimonials, FAQ, defaultContent.ts
+  config/              formOptions.ts (enrollment selects), site.ts
   hooks/               useEnrollmentForm, useHashView, useSmoothAnchorScroll, useCopyToClipboard
-  lib/                 whatsapp.ts — builds wa.me deep links for enrollment submissions
+  lib/                 content-store.ts (JSON file), content-schema.ts (zod), auth.ts, whatsapp.ts
   types/ utils/
+content/site-content.json   Written by the CMS (gitignored)
 ```
 
 Conventions: imports use the `@/` alias; static copy lives in `data/`, tunable values in `config/`;
 components take callbacks as props rather than reaching for global state.
 
+## Admin CMS (`/admin`)
+
+All visitor-facing content (hero, about, courses, services, pricing, testimonials, FAQ, payment
+details, footer, WhatsApp number) is editable at `/admin`. Edits are saved to
+`content/site-content.json` and published to the live site immediately; anything not overridden
+falls back to `src/data/defaultContent.ts`.
+
+Credentials and the cookie-signing secret come from environment variables:
+
+```
+cp .env.example .env.local   # then change ADMIN_USERNAME / ADMIN_PASSWORD / ADMIN_SESSION_SECRET
+```
+
+Sessions are HttpOnly signed cookies (7 days); logins are throttled to 5 failed attempts per
+15 minutes. The store needs a persistent filesystem (`next start` on a VPS or a Docker volume) —
+on serverless hosts such as Vercel the filesystem is read-only, so `src/lib/content-store.ts`
+would need to be pointed at a database or KV store.
+
 ## WhatsApp enrollment
 
-The enrollment form has no server. On submit it opens `https://wa.me/<ACADEMY_WHATSAPP>` with the form fields pre-filled; the number lives in `src/config/site.ts` (`ACADEMY_WHATSAPP`).
+The enrollment form has no server. On submit it opens `https://wa.me/<number>` with the form fields pre-filled; the number is set in the CMS under **Site & Contact**.

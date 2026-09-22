@@ -16,12 +16,17 @@ import RegistrationSuccess from '@/components/RegistrationSuccess';
 import CourseModal from '@/components/CourseModal';
 import DomainSetupModal from '@/components/DomainSetupModal';
 import ParticleBackground from '@/components/ParticleBackground';
+import { ContentProvider } from '@/components/ContentProvider';
 
 import { useHashView } from '@/hooks/useHashView';
 import { useSmoothAnchorScroll } from '@/hooks/useSmoothAnchorScroll';
-import type { Course, EnrollmentPayload } from '@/types';
+import type { Course, EnrollmentPayload, SiteContent } from '@/types';
 
-export default function App() {
+interface AppProps {
+  content: SiteContent;
+}
+
+export default function App({ content }: AppProps) {
   const { view, showMain, showSuccess, setView } = useHashView();
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [preselectedCourse, setPreselectedCourse] = useState('');
@@ -58,37 +63,39 @@ export default function App() {
   const closeCourseModal = useCallback(() => setSelectedCourse(null), []);
 
   return (
-    <div className="relative min-h-screen bg-brand-black text-white font-sans antialiased">
-      <ParticleBackground />
+    <ContentProvider content={content}>
+      <div className="relative min-h-screen bg-brand-black text-white font-sans antialiased">
+        <ParticleBackground />
 
-      {/* Ambient background glows, clipped so they never extend the page */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0" aria-hidden="true">
-        <div className="absolute top-[-250px] left-[-250px] w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(30,144,255,0.14)_0%,rgba(30,144,255,0)_65%)]" />
-        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(66,183,255,0.14)_0%,rgba(66,183,255,0)_65%)]" />
+        {/* Ambient background glows, clipped so they never extend the page */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0" aria-hidden="true">
+          <div className="absolute top-[-250px] left-[-250px] w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(30,144,255,0.14)_0%,rgba(30,144,255,0)_65%)]" />
+          <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(66,183,255,0.14)_0%,rgba(66,183,255,0)_65%)]" />
+        </div>
+
+        <Header onHomeClick={showMain} onDomainGuideClick={openDomainGuide} />
+
+        <main className="relative z-10">
+          <HeroSection />
+          <AboutSection />
+          <CoursesSection onLearnMore={setSelectedCourse} onEnroll={handleEnrollClick} />
+          <ServicesSection />
+          <PricingSection onEnroll={handleEnrollClick} />
+          <TestimonialsSection />
+          <FaqSection />
+
+          {view === 'registration-success' ? (
+            <RegistrationSuccess enrollmentData={submittedEnrollment} onReturnHome={showMain} />
+          ) : (
+            <EnrollmentSection preselectedCourse={preselectedCourse} onSuccess={handleEnrollmentSuccess} />
+          )}
+        </main>
+
+        <Footer onHomeClick={showMain} onDomainGuideClick={openDomainGuide} />
+
+        <CourseModal course={selectedCourse} onClose={closeCourseModal} onEnroll={handleEnrollClick} />
+        <DomainSetupModal isOpen={isDomainGuideOpen} onClose={closeDomainGuide} />
       </div>
-
-      <Header onHomeClick={showMain} onDomainGuideClick={openDomainGuide} />
-
-      <main className="relative z-10">
-        <HeroSection />
-        <AboutSection />
-        <CoursesSection onLearnMore={setSelectedCourse} onEnroll={handleEnrollClick} />
-        <ServicesSection />
-        <PricingSection onEnroll={handleEnrollClick} />
-        <TestimonialsSection />
-        <FaqSection />
-
-        {view === 'registration-success' ? (
-          <RegistrationSuccess enrollmentData={submittedEnrollment} onReturnHome={showMain} />
-        ) : (
-          <EnrollmentSection preselectedCourse={preselectedCourse} onSuccess={handleEnrollmentSuccess} />
-        )}
-      </main>
-
-      <Footer onHomeClick={showMain} onDomainGuideClick={openDomainGuide} />
-
-      <CourseModal course={selectedCourse} onClose={closeCourseModal} onEnroll={handleEnrollClick} />
-      <DomainSetupModal isOpen={isDomainGuideOpen} onClose={closeDomainGuide} />
-    </div>
+    </ContentProvider>
   );
 }

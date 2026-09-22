@@ -1,13 +1,11 @@
+'use client';
+
 import { ArrowRight, Sparkles, Zap } from 'lucide-react';
 import Container from '@/components/ui/Container';
-
-const HERO_METRICS = [
-  { value: 'A* / 5', label: 'Target Score', accent: false },
-  { value: '100%', label: 'Online HD', accent: true },
-  { value: '1-on-1', label: '& Groups', accent: false },
-];
+import { useContent } from '@/components/ContentProvider';
 
 export default function HeroSection() {
+  const { hero } = useContent();
   return (
     <section id="home" className="relative pt-8 pb-16 sm:py-24 overflow-hidden">
       <Container className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -18,19 +16,19 @@ export default function HeroSection() {
           {/* Premium Top Badge */}
           <div className="inline-flex items-center gap-2 bg-electric-blue/10 text-cyan-accent px-3 py-1 rounded-full text-xs font-mono tracking-wider uppercase border border-electric-blue/20">
             <Sparkles className="w-3.5 h-3.5" />
-            Clarity · Strategy · Momentum
+            {hero.badge}
           </div>
 
           <div className="space-y-4">
             <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight text-white leading-[1.1]">
-              Master Physics.<br />
+              {hero.titleLine1}<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-accent via-electric-blue to-white">
-                Achieve Higher Scores.
+                {hero.titleLine2}
               </span>
             </h1>
 
             <p className="text-sm sm:text-lg text-brand-silver font-sans max-w-xl leading-relaxed">
-              Expert Physics tutoring designed for students preparing for AP Physics and Tahsili. Build complete conceptual mastery and top test taking strategies.
+              {hero.description}
             </p>
           </div>
 
@@ -41,7 +39,7 @@ export default function HeroSection() {
               id="hero-enroll-now-btn"
               className="px-8 py-4 rounded-xl text-xs sm:text-sm font-display font-bold bg-gradient-to-r from-electric-blue to-cyan-accent text-white shadow-xl shadow-electric-blue/25 hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              Enroll Now
+              {hero.primaryCta}
               <ArrowRight className="w-4.5 h-4.5" />
             </a>
 
@@ -50,13 +48,13 @@ export default function HeroSection() {
               id="hero-view-courses-btn"
               className="px-8 py-4 rounded-xl text-xs sm:text-sm font-display font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 hover:border-white/20 transition-all flex items-center justify-center gap-1 cursor-pointer"
             >
-              View Courses
+              {hero.secondaryCta}
             </a>
           </div>
 
           {/* Faint metric ribbon */}
           <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/5 max-w-md font-mono">
-            {HERO_METRICS.map((metric) => (
+            {hero.metrics.map((metric) => (
               <div key={metric.label}>
                 <span className={`block text-xl sm:text-2xl font-bold ${metric.accent ? 'text-cyan-accent' : 'text-white'}`}>
                   {metric.value}

@@ -20,8 +20,9 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useEnrollmentForm } from '@/hooks/useEnrollmentForm';
-import { AVAILABLE_COURSES, COUNTRIES_LIST, PAYMENT_METHODS, PREFERRED_BATCHES, STUDY_MODES } from '@/config/bankDetails';
+import { AVAILABLE_COURSES, COUNTRIES_LIST, PAYMENT_METHODS, PREFERRED_BATCHES, STUDY_MODES } from '@/config/formOptions';
 import { openWhatsApp } from '@/lib/whatsapp';
+import { useContent } from '@/components/ContentProvider';
 import { SelectField, TextField } from '@/components/ui/FormField';
 import type { EnrollmentPayload, PaymentMethod } from '@/types';
 
@@ -31,6 +32,7 @@ interface EnrollmentFormProps {
 }
 
 export default function EnrollmentForm({ onSuccess, preselectedCourse }: EnrollmentFormProps) {
+  const { site } = useContent();
   const {
     formData,
     errors,
@@ -42,7 +44,7 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
     handlePaymentMethodChange,
     handleSubmit,
     setFormData
-  } = useEnrollmentForm(onSuccess);
+  } = useEnrollmentForm(site.whatsappNumber, onSuccess);
 
   // If preselected course passed from Course Cards
   useEffect(() => {
@@ -53,6 +55,7 @@ export default function EnrollmentForm({ onSuccess, preselectedCourse }: Enrollm
 
   const handleDirectWhatsApp = () => {
     openWhatsApp(
+      site.whatsappNumber,
       `Hello Momentum Physics! I am interested in enrolling in the ${formData.course || 'Physics'} program (${formData.studyMode} mode). Please send me enrollment details!`
     );
   };

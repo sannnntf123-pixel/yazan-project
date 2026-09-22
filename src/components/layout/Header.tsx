@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Globe } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import { NAV_LINKS } from '@/data/navigation';
-import { SITE_SHORT_NAME } from '@/config/site';
+import { useContent } from '@/components/ContentProvider';
 import physicsLogo from '@/assets/images/physics_logo_1784026386356.jpg';
 
 interface HeaderProps {
@@ -13,13 +13,14 @@ interface HeaderProps {
 }
 
 export default function Header({ onHomeClick, onDomainGuideClick }: HeaderProps) {
+  const { site, hero } = useContent();
   return (
     <header id="app-header" className="sticky top-0 z-40 w-full bg-brand-black/75 backdrop-blur-md border-b border-white/5">
       <Container className="h-18 sm:h-20 flex items-center justify-between">
         <button onClick={onHomeClick} id="brand-logo-nav" className="flex items-center gap-2 group cursor-pointer text-left" aria-label="Back to top">
           <Image
             src={physicsLogo}
-            alt={SITE_SHORT_NAME}
+            alt={site.shortName}
             width={48}
             height={48}
             sizes="48px"
@@ -54,7 +55,7 @@ export default function Header({ onHomeClick, onDomainGuideClick }: HeaderProps)
             id="nav-enroll-btn"
             className="px-4 py-2.5 rounded-lg text-xs font-display font-semibold border border-electric-blue/30 bg-electric-blue/10 text-white hover:bg-electric-blue hover:shadow-lg hover:shadow-electric-blue/20 transition-all cursor-pointer block text-center"
           >
-            Enroll Now
+            {hero.primaryCta}
           </a>
         </div>
       </Container>

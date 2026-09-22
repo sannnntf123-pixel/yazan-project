@@ -43,7 +43,7 @@ function scrollToFirstError(validationErrors: EnrollmentFormErrors) {
   }
 }
 
-export function useEnrollmentForm(onSuccessCallback?: (payload: EnrollmentPayload) => void) {
+export function useEnrollmentForm(whatsappNumber: string, onSuccessCallback?: (payload: EnrollmentPayload) => void) {
   const [formData, setFormData] = useState<EnrollmentFormData>(initialFormData);
   const [errors, setErrors] = useState<EnrollmentFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -103,7 +103,7 @@ export function useEnrollmentForm(onSuccessCallback?: (payload: EnrollmentPayloa
     setSubmissionProgress(50);
 
     try {
-      const result = submitEnrollmentViaWhatsApp(formData);
+      const result = submitEnrollmentViaWhatsApp(formData, whatsappNumber);
       setSubmissionProgress(90);
 
       if (result.success && result.data) {
