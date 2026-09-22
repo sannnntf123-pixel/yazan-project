@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { Check, ExternalLink, Loader2, LogOut, RotateCcw, Save } from 'lucide-react';
+import { AlertTriangle, Check, ExternalLink, Loader2, LogOut, RotateCcw, Save } from 'lucide-react';
 import { loadContent, logout, resetContent, saveContent } from '@/app/admin/actions';
 import type { SiteContent } from '@/types';
 import {
@@ -35,9 +35,10 @@ const SECTIONS: { key: SectionKey; label: string; description: string }[] = [
 interface AdminDashboardProps {
   initialContent: SiteContent;
   storeName: string;
+  storeWarning: string | null;
 }
 
-export default function AdminDashboard({ initialContent, storeName }: AdminDashboardProps) {
+export default function AdminDashboard({ initialContent, storeName, storeWarning }: AdminDashboardProps) {
   const [saved, setSaved] = useState(initialContent);
   const [draft, setDraft] = useState(initialContent);
   const [active, setActive] = useState<SectionKey>('site');
@@ -190,6 +191,18 @@ export default function AdminDashboard({ initialContent, storeName }: AdminDashb
         >
           {status.type === 'success' && <Check className="w-4 h-4 shrink-0" />}
           <span>{status.text}</span>
+        </div>
+      )}
+
+      {storeWarning && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+          <div role="alert" className="flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs text-amber-200">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-300" />
+            <div>
+              <strong className="block text-amber-100 mb-0.5">Storage not configured</strong>
+              {storeWarning}
+            </div>
+          </div>
         </div>
       )}
 

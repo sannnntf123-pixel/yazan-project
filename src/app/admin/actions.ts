@@ -12,7 +12,7 @@ import {
   recordFailedAttempt,
   verifyCredentials,
 } from '@/lib/auth';
-import { contentStoreName, getSiteContent, resetSiteContent, saveSiteContent } from '@/lib/content-store';
+import { contentStoreName, contentStoreWarning, getSiteContent, resetSiteContent, saveSiteContent } from '@/lib/content-store';
 import { siteContentSchema } from '@/lib/content-schema';
 import type { SiteContent } from '@/types';
 
@@ -85,13 +85,8 @@ export async function resetContent(): Promise<ActionResult> {
 
 /** Turn a storage failure into something the admin can act on. */
 function storageErrorMessage(error: unknown): string {
-  const code = (error as NodeJS.ErrnoException)?.code;
-  if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') {
-    return (
-      'This host has a read-only filesystem, so content cannot be saved to a file. ' +
-      'Connect a Vercel Blob store to the project (Storage → Create → Blob) and redeploy.'
-    );
-  }
+  // Vercel surfaces its read-only filesystem as ENOENT/EROFS on mkdir.
+  if (contentStoreWarning) return contentStoreWarning;
   return `Could not save to ${contentStoreName}: ${error instanceof Error ? error.message : 'unknown error'}`;
 }
 

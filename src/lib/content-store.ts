@@ -23,6 +23,15 @@ const store = selectStore();
 
 export const contentStoreName = store.name;
 
+/**
+ * A warning for the admin UI when content cannot persist on this host —
+ * i.e. running on Vercel (read-only filesystem) without a Blob store.
+ */
+export const contentStoreWarning: string | null =
+  process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN
+    ? 'Content cannot be saved on Vercel until a Blob store is connected: open the project on vercel.com → Storage → Create Database → Blob → connect it to this project, then redeploy.'
+    : null;
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
